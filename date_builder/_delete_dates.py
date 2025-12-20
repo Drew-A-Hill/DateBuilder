@@ -7,7 +7,7 @@ from _days_of_week import DaysOfWeek
 from _helper_methods import HelperMethods
 
 class DeleteDates:
-    def __init__(self, find: FindDates.FindDate, tree: RBTree):
+    def __init__(self, find: _find_dates.FindDate, tree: RBTree):
         """
         Instantiates the delete date object with the necessary arguments
         :param find: The find date object used to find if a date is in tree
