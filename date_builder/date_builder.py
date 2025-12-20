@@ -2,7 +2,6 @@ from datetime import datetime
 
 from bintrees import RBTree
 
-from ._filter_dates import FilteredDates
 from ._days_of_week import DaysOfWeek
 from ._delete_dates import DeleteDates
 from ._find_dates import FindDate

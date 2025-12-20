@@ -2,7 +2,7 @@ import datetime
 
 from bintrees import RBTree
 
-from _days_of_week import DaysOfWeek
+from ._days_of_week import DaysOfWeek
 
 
 class AddDates:

@@ -2,9 +2,6 @@ from datetime import datetime
 
 from bintrees import RBTree
 
-from _days_of_week import DaysOfWeek
-from _filter_dates import FilteredDates
-
 class ShowDates:
 
     def show_dates(self, tree: RBTree) -> None:
