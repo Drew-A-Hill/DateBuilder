@@ -3,7 +3,7 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "datebuilder"
+name = "date_builder"
 version = "0.1.0"
 description = "Tree-based date filtering utilities"
 readme = "README.md"
@@ -18,4 +18,4 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["datebuilder"]
+packages = ["date_builder"]
