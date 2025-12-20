@@ -11,6 +11,7 @@ class DaysOfWeek:
         self.fri: bool = False
         self.sat: bool = False
         self.sun: bool = False
+        self.included = self.get_included()
 
     def monday(self, include: bool = False) -> None:
         """
@@ -122,5 +123,7 @@ class DaysOfWeek:
 
         if self.sun is True:
             included_dow.append(6)
+
+        self.included = included_dow
 
         return included_dow

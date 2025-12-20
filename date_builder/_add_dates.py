@@ -25,13 +25,6 @@ class AddDates:
         copy: object = self.date_obj
         return copy
 
-    def new_date_tree(self) -> RBTree:
-        """
-        Creates a new empty tree
-        :return: None
-        """
-        return RBTree()
-
     def add_date_tree(self, first_date: datetime.date, last_date: datetime.date = None,
                       unique_obj: object = None) -> RBTree:
         """
@@ -50,7 +43,7 @@ class AddDates:
         if last_date < first_date:
             raise ValueError()
 
-        if len(self.days_of_week.get_included()) == 0:
+        if len(self.days_of_week.included) == 0:
             raise ValueError("No days of weeks were included")
 
         current_date: datetime.date = first_date

@@ -25,13 +25,6 @@ class DateBuilder:
         self.tree = tree
         self.days_of_week = DaysOfWeek()
 
-    def new_date_tree(self) -> None:
-        """
-        Creates a new empty tree
-        :return: None
-        """
-        self.tree = AddDates(self.date_obj, self.tree).new_date_tree()
-
     def add_date_tree(self, first_date: datetime.date, last_date: datetime.date = None,
                       unique_obj: object = None) -> RBTree:
         """
