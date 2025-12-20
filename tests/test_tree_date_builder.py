@@ -3,7 +3,7 @@ import datetime
 import pytest
 from unittest.mock import MagicMock, patch
 
-from DeleteDates import DeleteDates
+from date_builder._delete_dates import DeleteDates
 
 
 def test_delete_date_tree_success():

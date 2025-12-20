@@ -2,7 +2,7 @@ import datetime
 
 from bintrees import RBTree
 
-from DaysOfWeek import DaysOfWeek
+from _days_of_week import DaysOfWeek
 
 class FilteredDates:
     def __init__(self, tree: RBTree, days_of_week: DaysOfWeek):

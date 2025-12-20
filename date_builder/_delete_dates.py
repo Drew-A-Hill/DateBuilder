@@ -2,9 +2,9 @@ import datetime
 
 from bintrees import RBTree
 
-import FindDates
-from DaysOfWeek import DaysOfWeek
-from HelperMethods import HelperMethods
+import _find_dates
+from _days_of_week import DaysOfWeek
+from _helper_methods import HelperMethods
 
 class DeleteDates:
     def __init__(self, find: FindDates.FindDate, tree: RBTree):

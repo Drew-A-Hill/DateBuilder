@@ -2,8 +2,8 @@ from datetime import datetime
 
 from bintrees import RBTree
 
-from DaysOfWeek import DaysOfWeek
-from Filter import FilteredDates
+from _days_of_week import DaysOfWeek
+from _filter_dates import FilteredDates
 
 class ShowDates:
 
