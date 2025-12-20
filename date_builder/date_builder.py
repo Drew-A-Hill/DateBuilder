@@ -10,7 +10,7 @@ from _add_dates import AddDates
 from _show_dates import ShowDates
 
 class DateBuilder:
-    def __init__(self, tree: RBTree,date_obj: object, days_of_week: DaysOfWeek):
+    def __init__(self, tree: RBTree, date_obj: object):
         """
         Instantiates the object that encapsulates the operations on the tree holding dates with the object to be used
         as the generic value.
@@ -24,7 +24,7 @@ class DateBuilder:
         """
         self.date_obj = date_obj
         self.tree = tree
-        self.days_of_week = days_of_week
+        self.days_of_week = DaysOfWeek()
 
     def new_date_tree(self) -> None:
         """
