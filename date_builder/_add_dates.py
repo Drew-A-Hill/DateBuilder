@@ -6,7 +6,7 @@ from ._days_of_week import DaysOfWeek
 
 
 class AddDates:
-    def __init__(self, date_obj: object, tree: RBTree):
+    def __init__(self, date_obj: object, tree: RBTree, days_of_week: DaysOfWeek):
         """
         Instantiates the object with the correct arguments to add dates as a key and object as a value to the tree
         :param date_obj: The object to be used as the default for the value
@@ -14,7 +14,7 @@ class AddDates:
         """
         self.date_obj = date_obj
         self.tree = tree
-        self.days_of_week: DaysOfWeek = DaysOfWeek()
+        self.days_of_week: DaysOfWeek = days_of_week
 
     def _copy_obj(self) -> object:
         """

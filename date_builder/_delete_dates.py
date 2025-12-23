@@ -7,15 +7,14 @@ from ._days_of_week import DaysOfWeek
 from ._helper_methods import HelperMethods
 
 class DeleteDates:
-    def __init__(self, find: FindDate, tree: RBTree):
+    def __init__(self, tree: RBTree, days_of_week: DaysOfWeek):
         """
         Instantiates the delete date object with the necessary arguments
-        :param find: The find date object used to find if a date is in tree
         :param tree: The tree that stores the dates and object as a key value pair
         """
         self.tree = tree
-        self.days_of_week: DaysOfWeek = DaysOfWeek()
-        self.find = find
+        self.days_of_week: DaysOfWeek = days_of_week
+        self.find = FindDate
 
     def delete_date_tree(self, date_str: str) -> RBTree:
         """
@@ -24,7 +23,7 @@ class DeleteDates:
         :param date_str: The date to be removed in str form
         :return: The tree with the date removed
         """
-        if self.find.find_date(date_str) is False:
+        if self.find.find_date(self.tree, date_str) is False:
             raise ValueError("Date is not found")
 
         date: datetime.datetime = HelperMethods.str_to_date(date_str)
@@ -41,7 +40,7 @@ class DeleteDates:
         :param by_day: Signal that only the designated days of week will be deleted
         :return: The tree with the date removed
         """
-        if self.find.find_date(before_date) is False:
+        if self.find.find_date(self.tree, before_date) is False:
             raise ValueError("Date is not found")
 
         current: datetime.date = self.tree.min_key()
@@ -72,7 +71,7 @@ class DeleteDates:
         :param by_day: Signal that only the designated days of week will be deleted
         :return: The tree with the date removed
         """
-        if self.find.find_date(after_date) is False:
+        if self.find.find_date(self.tree, after_date) is False:
             raise ValueError("Date is not found")
 
         current: datetime.date = self.tree.succ_key(HelperMethods.str_to_date(after_date))
@@ -104,7 +103,7 @@ class DeleteDates:
         :param by_day: Signal that only the designated days of week will be deleted
         :return: The tree with the date removed
         """
-        if self.find.find_date(first_date) is False:
+        if self.find.find_date(self.tree, first_date) is False:
             raise ValueError("Date is not found")
 
         current: datetime.date = self.tree.succ_key(HelperMethods.str_to_date(first_date))

@@ -10,7 +10,7 @@ from ._add_dates import AddDates
 from ._show_dates import ShowDates
 
 class DateBuilder:
-    def __init__(self, tree: RBTree, date_obj: object):
+    def __init__(self, tree: RBTree, date_obj: object, days_of_week: DaysOfWeek):
         """
         Instantiates the object that encapsulates the operations on the tree holding dates with the object to be used
         as the generic value.
@@ -24,7 +24,7 @@ class DateBuilder:
         """
         self.date_obj = date_obj
         self.tree = tree
-        self.days_of_week = DaysOfWeek()
+        self.days_of_week: DaysOfWeek = days_of_week
         self.find = FindDate()
 
     def add_date_tree(self, first_date: datetime.date, last_date: datetime.date = None,
@@ -38,7 +38,7 @@ class DateBuilder:
         :param unique_obj: The unique object to use as the value if needed otherwise None is the default
         :return: The tree with the added dates
         """
-        return AddDates(self.date_obj, self.tree).add_date_tree(first_date, last_date, unique_obj)
+        return AddDates(self.date_obj, self.tree, self.days_of_week).add_date_tree(first_date, last_date, unique_obj)
 
     def date_finder_tree(self, date: str) -> bool:
         """
@@ -55,7 +55,7 @@ class DateBuilder:
         :param date_str: The date to be removed in str form
         :return: The tree with the date removed
         """
-        return DeleteDates(self.find, self.tree).delete_date_tree(date_str)
+        return DeleteDates(self.tree, self.days_of_week).delete_date_tree(date_str)
 
     def delete_before(self, before_date: str, by_day: bool = False) -> RBTree:
         """
@@ -66,7 +66,7 @@ class DateBuilder:
         :param by_day: Signal that only the designated days of week will be deleted
         :return: The tree with the date removed
         """
-        return DeleteDates(self.find, self.tree).delete_before(before_date, by_day)
+        return DeleteDates(self.tree, self.days_of_week).delete_before(before_date, by_day)
 
     def delete_after(self, after_date: str, by_day: bool = False) -> RBTree:
         """
@@ -77,7 +77,7 @@ class DateBuilder:
         :param by_day: Signal that only the designated days of week will be deleted
         :return: The tree with the date removed
         """
-        return DeleteDates(self.find, self.tree).delete_after(after_date, by_day)
+        return DeleteDates(self.tree, self.days_of_week).delete_after(after_date, by_day)
 
     def delete_between(self, first_date: str, last_date: str, by_day: bool = False) -> RBTree:
         """
@@ -89,7 +89,7 @@ class DateBuilder:
         :param by_day: Signal that only the designated days of week will be deleted
         :return: The tree with the date removed
         """
-        return DeleteDates(self.find, self.tree).delete_between(first_date, last_date, by_day)
+        return DeleteDates(self.tree, self.days_of_week).delete_between(first_date, last_date, by_day)
 
     def filter_dates(self, day: int = None, month: int = None, year: int = None) -> RBTree:
         """
