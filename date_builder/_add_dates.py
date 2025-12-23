@@ -43,7 +43,7 @@ class AddDates:
         if last_date < first_date:
             raise ValueError()
 
-        if len(self.days_of_week.included) == 0:
+        if len(self.days_of_week.included_days_list) == 0:
             raise ValueError("No days of weeks were included")
 
         current_date: datetime.date = first_date
