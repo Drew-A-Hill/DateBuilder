@@ -4,126 +4,79 @@ class DaysOfWeek:
         """
         Instantiates the object such that each day of the week is false
         """
-        self.mon: bool = False
-        self.tue: bool = False
-        self.wed: bool = False
-        self.thu: bool = False
-        self.fri: bool = False
-        self.sat: bool = False
-        self.sun: bool = False
-        self.included = self.get_included()
-
-    def monday(self, include: bool = False) -> None:
-        """
-        Sets the date bool for mon to True if to be included and False if to be excluded
-        :param include: Input for determining inclusion
-        :return: None
-        """
-        self.mon = include
-
-    def tuesday(self, include: bool = False) -> None:
-        """
-        Sets the date bool for tue to True if to be included and False if to be excluded
-        :param include: Input for determining inclusion
-        :return: None
-        """
-        self.tue = include
-
-    def wednesday(self, include: bool = False) -> None:
-        """
-        Sets the date bool for wed to True if to be included and False if to be excluded
-        :param include: Input for determining inclusion
-        :return: None
-        """
-        self.wed = include
-
-    def thursday(self, include: bool = False) -> None:
-        """
-        Sets the date bool for thu to True if to be included and False if to be excluded
-        :param include: Input for determining inclusion
-        :return: None
-        """
-        self.thu = include
-
-    def friday(self, include: bool = False) -> None:
-        """
-        Sets the date bool for fri to True if to be included and False if to be excluded
-        :param include: Input for determining inclusion
-        :return: None
-        """
-        self.fri = include
-
-    def saturday(self, include: bool = False) -> None:
-        """
-        Sets the date bool for sat to True if to be included and False if to be excluded
-        :param include: Input for determining inclusion
-        :return: None
-        """
-        self.sat = include
-
-    def sunday(self, include: bool = False) -> None:
-        """
-        Sets the date bool for sun to True if to be included and False if to be excluded
-        :param include: Input for determining inclusion
-        :return: None
-        """
-        self.sun = include
-
-    def include_exclude_all(self, status: bool) -> None:
-        """
-        Updates all days of the week with either True or False
-        :param status: True or False
-        :return: None
-        """
-        self.monday(status)
-        self.tuesday(status)
-        self.wednesday(status)
-        self.thursday(status)
-        self.friday(status)
-        self.saturday(status)
-        self.sunday(status)
-
-    def include_all(self) -> None:
-        """
-        Includes all days by calling include_exclude_all and passing true as the signal to include
-        :return: None
-        """
-        self.include_exclude_all(True)
-
-    def exclude_all(self) -> None:
-        """
-        Excludes all days by calling include_exclude_all and passing false as the signal to exclude
-        :return: None
-        """
-        self.include_exclude_all(False)
+        self.included_days_list: list[int] = []
 
     def get_included(self) -> list[int]:
         """
-        Adds int form of the days that are included dates to a list
+        Adds int form of the days that are included dates to a list.
         :return: A list of included dates
         """
-        included_dow: list[int] = []
-        if self.mon is True:
-            included_dow.append(0)
+        return self.included_days_list
 
-        if self.tue is True:
-            included_dow.append(1)
+    @staticmethod
+    def _include_exclude_check(days_list: list[bool], action: str) -> None:
+        """
 
-        if self.wed is True:
-            included_dow.append(2)
+        :param days_list:
+        :param action:
+        :return:
+        """
+        for each in days_list:
+            if each is True:
+                raise ValueError(f"Marking both {action} all and a specific day as True is invalid, if the intent is "
+                                 f"to {action} all only mark {action}_all as True")
 
-        if self.thu is True:
-            included_dow.append(3)
+    def include_all(self, days_list: list[bool]):
+        """
 
-        if self.fri is True:
-            included_dow.append(4)
+        :param days_list:
+        :return:
+        """
+        self._include_exclude_check(days_list, "include")
+        for i in range(0, 6):
+            self.included_days_list.append(i)
 
-        if self.sat is True:
-            included_dow.append(5)
+    def exclude_all(self, days_list: list[bool]):
+        """
 
-        if self.sun is True:
-            included_dow.append(6)
+        :param days_list:
+        :return:
+        """
+        self._include_exclude_check(days_list, "exclude")
+        self.included_days_list.clear()
 
-        self.included = included_dow
+    def included_days(self, monday=False, tuesday=False, wednesday=False, thursday=False, friday=False, saturday=False,
+                     sunday=None, include_all=False, exclude_all=False) -> None:
+        """
 
-        return included_dow
+        :param monday:
+        :param tuesday:
+        :param wednesday:
+        :param thursday:
+        :param friday:
+        :param saturday:
+        :param sunday:
+        :param include_all:
+        :param exclude_all:
+        :return:
+        """
+        days: list[bool] = [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
+
+        if include_all is True and exclude_all is True:
+            raise ValueError("Can not mark both include_all and exclude_all as True")
+
+        if include_all is True:
+            self.include_all(days)
+
+        elif exclude_all is True:
+            self.exclude_all(days)
+
+        else:
+            for i in range(len(days)):
+                if days[i] is True:
+                    self.included_days_list.append(i)
+
+
+
+
+

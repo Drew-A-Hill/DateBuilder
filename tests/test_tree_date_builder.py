@@ -4,6 +4,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 
 from date_builder._delete_dates import DeleteDates
+from date_builder.date_builder import DateBuilder
 
 
 def test_delete_date_tree_success():
@@ -72,13 +73,10 @@ def test_delete_date_tree_integration_real_tree():
     mock_find = MagicMock()
     mock_find.find_date.return_value = True
 
-    # If your RBTree doesn't implement remove_items(date), but instead remove(date),
-    # change the production code or this test accordingly.
     with patch("DeleteDates.HelperMethods.str_to_date", return_value=date):
         deleter = DeleteDates(mock_find, tree)
 
-        # Some bintrees versions use `remove(key)` not `remove_items(key)`.
-        # If your code uses remove_items, this should exist in your environment.
+
         deleter.delete_date_tree("2024-01-15")
 
     assert date not in tree
