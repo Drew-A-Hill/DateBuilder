@@ -56,7 +56,8 @@ class AddDates:
 
                 else:
                     self.tree.insert(current_date, self._copy_obj())
-                current_date = current_date + datetime.timedelta(1)
+
+            current_date = current_date + datetime.timedelta(1)
 
         return self.tree
 
