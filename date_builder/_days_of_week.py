@@ -26,17 +26,17 @@ class DaysOfWeek:
                 raise ValueError(f"Marking both {action} all and a specific day as True is invalid, if the intent is "
                                  f"to {action} all only mark {action}_all as True")
 
-    def include_all(self, days_list: list[bool]):
+    def _include_all(self, days_list: list[bool]):
         """
 
         :param days_list:
         :return:
         """
         self._include_exclude_check(days_list, "include")
-        for i in range(0, 6):
+        for i in range(0, 7):
             self.included_days_list.append(i)
 
-    def exclude_all(self, days_list: list[bool]):
+    def _exclude_all(self, days_list: list[bool]):
         """
 
         :param days_list:
@@ -66,10 +66,10 @@ class DaysOfWeek:
             raise ValueError("Can not mark both include_all and exclude_all as True")
 
         if include_all is True:
-            self.include_all(days)
+            self._include_all(days)
 
         elif exclude_all is True:
-            self.exclude_all(days)
+            self._exclude_all(days)
 
         else:
             for i in range(len(days)):
