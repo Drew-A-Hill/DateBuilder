@@ -1,7 +1,7 @@
 """
-date_builder
+date_tree_builder
 
-Public API for the date_builder package.
+Public API for the date_tree_builder package.
 """
 from .date_builder import DateBuilder
 

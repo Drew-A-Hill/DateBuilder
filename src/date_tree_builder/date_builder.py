@@ -7,6 +7,7 @@ from ._days_of_week import DaysOfWeek
 from ._delete_dates import DeleteDates
 from ._find_dates import FindDate
 from ._add_dates import AddDates
+from ._helper_methods import HelperMethods
 from ._show_dates import ShowDates
 
 class DateBuilder:
@@ -17,8 +18,8 @@ class DateBuilder:
         DateBuilder methods for a tree are:
         - new_date_tree(self) -> None
         - add_date_tree(self, first_date: datetime.date, last_date: datetime.date = None, unique_obj: object = None)
-        - date_finder_tree(self, date: str) -> bool
-        - delete_dates_tree(self, date : str) -> RBTree
+        - date_finder_tree(self, date: datetime.date) -> bool
+        - delete_dates_tree(self, date : datetime.date) -> RBTree
         - def show_dates_tree(self) -> None
         :param date_obj: The object to be used as the generic value given there is not a unique object given directly
         """
@@ -26,6 +27,14 @@ class DateBuilder:
         self.tree = tree
         self.days_of_week: DaysOfWeek = days_of_week
         self.find = FindDate()
+
+    @property
+    def get_count(self) -> int:
+        """
+
+        :return:
+        """
+        return len(self.tree)
 
     def add_date_tree(self, first_date: datetime.date, last_date: datetime.date = None,
                       unique_obj: object = None) -> RBTree:
@@ -38,58 +47,34 @@ class DateBuilder:
         :param unique_obj: The unique object to use as the value if needed otherwise None is the default
         :return: The tree with the added dates
         """
-        return AddDates(self.date_obj, self.tree, self.days_of_week).add_date_tree(first_date, last_date, unique_obj)
+        return AddDates(self.date_obj, self.tree, self.days_of_week).add_date(first_date, last_date, unique_obj)
 
-    def date_finder_tree(self, date: str) -> bool:
+    def find_date(self, date: datetime.date) -> bool:
         """
         Finds if a date exists in the tree and returns True if the date exists and False if the date does not exist.
         :param date: The date being searched for
         :return: Bool response if the date has been found
         """
-        return self.find.find_date(self.tree, date)
+        return self.find.find_date_exist(self.tree, date)
 
-    def delete_dates_tree(self, date_str : str) -> RBTree:
+    def delete_date(self, date: datetime.date) -> RBTree:
         """
         Deletes a single date from the tree if the date exists within the tree. If the date does not exist then a
         value error is raised
-        :param date_str: The date to be removed in str form
+        :param date: The date to be removed
         :return: The tree with the date removed
         """
-        return DeleteDates(self.tree, self.days_of_week).delete_date_tree(date_str)
+        return DeleteDates(self.tree, self.days_of_week).delete_date(date)
 
-    def delete_before(self, before_date: str, by_day: bool = False) -> RBTree:
+    def delete_date_range(self, lower_date: datetime.date=None, upper_date: datetime.date=None):
         """
-        Deletes all dates before a specified date. If the by date is selected as True then days_of_week.day of week in
-        range to be deleted must be called. For example if the argument by_day is True and the desired action is to
-        remove all mondays before the specified date then day_of_week.monday(True) must be called.
-        :param before_date: The upper limit of dates to be deleted
-        :param by_day: Signal that only the designated days of week will be deleted
-        :return: The tree with the date removed
-        """
-        return DeleteDates(self.tree, self.days_of_week).delete_before(before_date, by_day)
 
-    def delete_after(self, after_date: str, by_day: bool = False) -> RBTree:
+        :param lower_date:
+        :param upper_date:
+        :return:
         """
-        Deletes all dates after a specified date. If the by date is selected as True then days_of_week.day of week in
-        range to be deleted must be called. For example if the argument by_day is True and the desired action is to
-        remove all mondays before the specified date then day_of_week.monday(True) must be called.
-        :param after_date: The lower limit of dates to be deleted
-        :param by_day: Signal that only the designated days of week will be deleted
-        :return: The tree with the date removed
-        """
-        return DeleteDates(self.tree, self.days_of_week).delete_after(after_date, by_day)
+        return DeleteDates(self.tree, self.days_of_week).delete_date_range(upper_date, lower_date)
 
-    def delete_between(self, first_date: str, last_date: str, by_day: bool = False) -> RBTree:
-        """
-        Deletes all dates between specified dates. If the by date is selected as True then days_of_week.day of week in
-        range to be deleted must be called. For example if the argument by_day is True and the desired action is to
-        remove all mondays before the specified date then day_of_week.monday(True) must be called.
-        :param first_date: The lower limit of dates to be deleted
-        :param last_date: The upper limit of dates to be deleted
-        :param by_day: Signal that only the designated days of week will be deleted
-        :return: The tree with the date removed
-        """
-        return DeleteDates(self.tree, self.days_of_week).delete_between(first_date, last_date, by_day)
 
     def filter_dates(self, day: int = None, month: int = None, year: int = None) -> RBTree:
         """
@@ -125,7 +110,6 @@ class DateBuilder:
                                 years: list[int] = None) -> RBTree:
         """
 
-        :param day_of_week:
         :param days:
         :param months:
         :param years:
@@ -134,10 +118,19 @@ class DateBuilder:
         return FilteredDates(self.tree, self.days_of_week).get_filtered_date_range(days, months, years)
 
     @staticmethod
-    def show_dates_tree(tree: RBTree) -> None:
+    def show_dates(tree: RBTree) -> None:
         """
         Prints the dates in the tree to the terminal to provide user with a visual representation of the dates added
         :return: None
         """
         ShowDates.show_dates(tree)
+
+    @staticmethod
+    def str_to_date(date_str: str) -> datetime.date:
+        """
+
+        :param date_str:
+        :return:
+        """
+        return HelperMethods.str_to_date(date_str)
 

@@ -3,8 +3,25 @@ import datetime
 import pytest
 from unittest.mock import MagicMock, patch
 
-from date_builder._delete_dates import DeleteDates
-from date_builder.date_builder import DateBuilder
+from bintrees import RBTree
+
+from src.date_tree_builder._days_of_week import DaysOfWeek
+from src.date_tree_builder import DeleteDates
+from src.date_tree_builder.date_builder import DateBuilder
+
+def test_add_single_date_success():
+    tree = RBTree()
+    obj = MagicMock
+    dow = DaysOfWeek()
+
+    db = DateBuilder(tree, obj, dow)
+
+    date_str: str = "2020-12-12"
+    date: datetime.date = datetime.date(2020, 12, 12)
+
+    result: RBTree = db.add_date_tree(date)
+
+    assert  result.count() == 1
 
 
 def test_delete_date_tree_success():
@@ -21,7 +38,7 @@ def test_delete_date_tree_success():
         deleter = DeleteDates(mock_find, mock_tree)
 
         # Act
-        result = deleter.delete_date_tree(date_str)
+        result = deleter.delete_date(date_str)
 
         # Assert
         mock_find.find_date.assert_called_once_with(date_str)
@@ -39,7 +56,7 @@ def test_delete_date_tree_date_not_found_raises():
 
     # Act / Assert
     with pytest.raises(ValueError, match="Date is not found"):
-        deleter.delete_date_tree("2024-01-15")
+        deleter.delete_date("2024-01-15")
 
     mock_tree.remove_items.assert_not_called()
 
@@ -56,7 +73,7 @@ def test_delete_date_tree_calls_str_to_date():
         deleter = DeleteDates(mock_find, mock_tree)
 
         # Act
-        deleter.delete_date_tree("2024-01-15")
+        deleter.delete_date("2024-01-15")
 
         # Assert
         mock_str_to_date.assert_called_once_with("2024-01-15")
@@ -77,6 +94,6 @@ def test_delete_date_tree_integration_real_tree():
         deleter = DeleteDates(mock_find, tree)
 
 
-        deleter.delete_date_tree("2024-01-15")
+        deleter.delete_date("2024-01-15")
 
     assert date not in tree

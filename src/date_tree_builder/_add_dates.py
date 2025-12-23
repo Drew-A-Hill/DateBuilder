@@ -4,7 +4,6 @@ from bintrees import RBTree
 
 from ._days_of_week import DaysOfWeek
 
-
 class AddDates:
     def __init__(self, date_obj: object, tree: RBTree, days_of_week: DaysOfWeek):
         """
@@ -25,8 +24,8 @@ class AddDates:
         copy: object = self.date_obj
         return copy
 
-    def add_date_tree(self, first_date: datetime.date, last_date: datetime.date = None,
-                      unique_obj: object = None) -> RBTree:
+    def add_date(self, first_date: datetime.date, last_date: datetime.date = None,
+                 unique_obj: object = None) -> RBTree:
         """
         Adds dates to the tree between two dates (inclusive). If there is no last date therefore only the first date
         will be added. The dates will become the key, and the generic object passed at installation or unique object
