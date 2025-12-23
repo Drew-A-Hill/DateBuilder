@@ -133,10 +133,11 @@ class DateBuilder:
         """
         return FilteredDates(self.tree, self.days_of_week).get_filtered_date_range(days, months, years)
 
-    def show_dates_tree(self, tree: RBTree) -> None:
+    @staticmethod
+    def show_dates_tree(tree: RBTree) -> None:
         """
         Prints the dates in the tree to the terminal to provide user with a visual representation of the dates added
         :return: None
         """
-        ShowDates().show_dates(tree)
+        ShowDates.show_dates(tree)
 

@@ -4,19 +4,25 @@ from bintrees import RBTree
 
 class ShowDates:
 
-    def show_dates(self, tree: RBTree) -> None:
+    @staticmethod
+    def show_dates(tree: RBTree) -> None:
         """
         Displays the dates in the tree to the terminal to provide user with a visual representation of the dates added
         :return: None
         """
         current: datetime.date = tree.min_key()
-        next_key: datetime.date = tree.succ_key(current)
 
-        while next_key is not None:
+        while current is not None:
             print(current)
-            current = next_key
 
-    def show_date_count(self, tree: RBTree) -> None:
+            try:
+                current = tree.succ_key(current)
+
+            except KeyError:
+                current = None
+
+    @staticmethod
+    def show_date_count(tree: RBTree) -> None:
         """
         Displays number of dates in tree
         :return: None
