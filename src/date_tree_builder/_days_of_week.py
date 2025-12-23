@@ -11,6 +11,7 @@ class DaysOfWeek:
         Adds int form of the days that are included dates to a list.
         :return: A list of included dates
         """
+
         return self.included_days_list
 
     @staticmethod

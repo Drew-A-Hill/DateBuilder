@@ -31,7 +31,7 @@ class DateBuilder:
     @property
     def get_count(self) -> int:
         """
-
+        Returns how many elements are in the tree
         :return:
         """
         return len(self.tree)
@@ -68,7 +68,7 @@ class DateBuilder:
 
     def delete_date_range(self, lower_date: datetime.date=None, upper_date: datetime.date=None):
         """
-
+        Deletes a range of dates from the tree, if weekdays have been added then also deletes by day of week
         :param lower_date:
         :param upper_date:
         :return:
@@ -109,7 +109,7 @@ class DateBuilder:
     def filtered_date_range(self, days: list[int] = None, months: list[int] = None,
                                 years: list[int] = None) -> RBTree:
         """
-
+        Filters a tree of dates and provides only the dates that have been designated, filters by a list
         :param days:
         :param months:
         :param years:
@@ -118,7 +118,26 @@ class DateBuilder:
         return FilteredDates(self.tree, self.days_of_week).get_filtered_date_range(days, months, years)
 
     @staticmethod
-    def show_dates(tree: RBTree) -> None:
+    def include_days_of_week(monday=False, tuesday=False, wednesday=False, thursday=False, friday=False,
+                             saturday=False, sunday=False, include_all=False, exclude_all=False) -> None:
+        """
+
+        :param monday:
+        :param tuesday:
+        :param wednesday:
+        :param thursday:
+        :param friday:
+        :param saturday:
+        :param sunday:
+        :param include_all:
+        :param exclude_all:
+        :return:
+        """
+        return DaysOfWeek().included_days(monday, tuesday, wednesday, thursday, friday, saturday, sunday, include_all,
+                                          exclude_all)
+
+    @staticmethod
+    def display_dates(tree: RBTree) -> None:
         """
         Prints the dates in the tree to the terminal to provide user with a visual representation of the dates added
         :return: None
@@ -128,9 +147,9 @@ class DateBuilder:
     @staticmethod
     def str_to_date(date_str: str) -> datetime.date:
         """
-
-        :param date_str:
-        :return:
+        Converts string form of date to date
+        :param date_str: string date in dd/mm/yyyy format
+        :return: Date as a datetime object
         """
         return HelperMethods.str_to_date(date_str)
 

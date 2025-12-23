@@ -1,6 +1,7 @@
 from datetime import datetime
 
 class HelperMethods:
+
     @staticmethod
     def str_to_date(date: str) -> datetime.date:
         """

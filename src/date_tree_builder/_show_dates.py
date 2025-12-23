@@ -20,22 +20,3 @@ class ShowDates:
 
             except KeyError:
                 current = None
-
-    @staticmethod
-    def show_date_count(tree: RBTree) -> None:
-        """
-        Displays number of dates in tree
-        :return: None
-        """
-        current: datetime.date = tree.min_key()
-        next_key: datetime.date = tree.succ_key(current)
-        count: int = 0
-
-        while next_key is not None:
-
-            if current is not None:
-                count = count + 1
-
-            current = next_key
-
-        print(count)

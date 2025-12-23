@@ -4,7 +4,6 @@ from bintrees import RBTree
 
 from ._find_dates import FindDate
 from ._days_of_week import DaysOfWeek
-from ._helper_methods import HelperMethods
 
 class DeleteDates:
     def __init__(self, tree: RBTree, days_of_week: DaysOfWeek):
