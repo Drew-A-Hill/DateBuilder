@@ -1,17 +1,19 @@
-from datetime import datetime
-
 from bintrees import RBTree
 
 class ShowDates:
-
+    """
+    Internal helper for displaying the contents of an RBTree of dates.
+    """
     @staticmethod
     def show_dates(tree: RBTree) -> None:
         """
-        Displays the dates in the tree to the terminal to provide user with a visual representation of the dates added
+        Print all dates stored in the tree.
+        :param tree: RBTree containing dates as keys.
+        :raises ValueError: If the tree is empty.
         :return: None
         """
         if tree.is_empty():
-            raise KeyError("Tree is empty")
+            raise ValueError("Tree is empty")
 
         for key in tree.keys():
             print(key)

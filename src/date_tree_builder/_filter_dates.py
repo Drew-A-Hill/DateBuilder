@@ -1,99 +1,96 @@
-import datetime
-
 from bintrees import RBTree
 
 from ._days_of_week import DaysOfWeek
 
+
 class FilteredDates:
+    """
+    Internal helper for filtering dates from an RBTree based on year, month, day, and/or day of week.
+    """
+
     def __init__(self, tree: RBTree, days_of_week: DaysOfWeek):
+        """
+        Construct a FilteredDates helper with the required dependencies.
+        :param tree: Tree to filter from. Keys are expected to be datetime.date.
+        :param days_of_week: DaysOfWeek instance controlling which weekdays are considered when filtering.
+        """
         self.tree = tree
         self.days_of_week = days_of_week
 
-    def _reset_days_of_week(self):
+    def _reset_days_of_week(self) -> None:
+        """
+        Reset the DaysOfWeek configuration to exclude all days. This is called after each filtering operation.
+        """
         self.days_of_week.included_days(exclude_all=True)
 
     def get_filtered_date_range(self, days: list[int] = None, months: list[int] = None,
                                 years: list[int] = None) -> RBTree:
         """
-
-        :param days:
-        :param months:
-        :param years:
-        :return:
+        Retrieve dates filtered by optional lists of days, months, years, and/or day of week. If the DaysOfWeek
+        configuration has included weekdays, the date's weekday must also be one of those.
+        :param days: Optional list of day-of-month values to filter by.
+        :param months: Optional list of month values (1–12) to filter by.
+        :param years: Optional list of year values to filter by.
+        :raises ValueError: If no dates match the given filters.
+        :return: A new RBTree containing only the filtered dates.
         """
-        # Resets all days of week in filter to be None for each call
-        self._reset_days_of_week()
-
         filtered_range: RBTree = RBTree()
 
         for key in self.tree.keys():
-
-            # Checks if current_key is in the desired year
+            # Filter by year
             if years is not None and key.year not in years:
                 continue
 
-            # Checks if current_key is in the desired month
+            # Filter by month
             if months is not None and key.month not in months:
                 continue
 
-            # Checks if current_key is the desired day of the month
+            # Filter by day of month
             if days is not None and key.day not in days:
                 continue
 
-            # Checks for day of week
-            if len(self.days_of_week.get_included()) > 0:
-                if key.weekday() not in self.days_of_week.get_included():
-                    continue
+            # Filter by day of week if any are configured
+            included_weekdays = self.days_of_week.get_included()
+            if included_weekdays and key.weekday() not in included_weekdays:
+                continue
 
-            # If the date meets the parameters adds it to the filtered tree
+            # If the date meets all criteria insert into the filtered tree
             value: object = self.tree.get_value(key)
             filtered_range.insert(key, value)
 
+        if len(filtered_range) == 0:
+            raise ValueError("No filtered elements available")
+
+        # Reset all days of week after each filtering call
+        self._reset_days_of_week()
+
         return filtered_range
 
-
-    def get_filtered_dates(self, day: int = None, month: int = None, year: int = None) -> RBTree:
+    def get_filtered_dates(
+        self,
+        day: int | None = None,
+        month: int | None = None,
+        year: int | None = None,
+    ) -> RBTree:
         """
-        Retrieve dates filtered by optional month, day, day of week, and/or year.
-
-        :param day:
-        :param month:
-        :param year: Year to be filtered by
-
-        Recommended usage:
-            Parameter usage:
-                get_dates(month=1, year=2020)
-                get_dates(year=2020, month=1)
-                get_dates(year=2020), etc
-
-            General usage information:
-                - Filtering by 3 parameters (day, month, year) will provide a tree of a specified date.
-                - Filtering by 4 parameters (day, day of week, month, year) may provide and empty tree.
-                - Filtering by day of week can be combined with month and year will provide all instances of that day
-                  of the week.
-                    -- TO FILTER BY DAY OF WEEK: User must add the days of the week by using the DaysOfWeek class which
-                       can be accessed by calling the days_of_week field. See DaysOfWeek class for documentation.
-                - Filtering by day and year for example get_dates(day=1, year=2020) will provide a tree containing the
-                  1st of the month for every month in the year
-                - Filtering by month and year for example get_dates(month=1, year=2020) will add all dates in january
-                  2020 to a tree
-
-        :return: A new tree containing filtered dates
+        Retrieve dates filtered by optional single day, month, and/or year.
+        :param day: Optional day-of-month to filter by.
+        :param month: Optional month (1–12) to filter by.
+        :param year: Optional year to filter by.
+        :raises ValueError: If no dates match the given filters.
+        :return: A new RBTree containing filtered dates.
         """
-        years: list[int] = []
-        months: list[int] = []
-        days: list[int] = []
+        years: list[int] | None = None
+        months: list[int] | None = None
+        days: list[int] | None = None
 
-        # Checks if year is not None so it can be used in call to filter logic
         if year is not None:
-            years.append(year)
+            years = [year]
 
-        # Checks if month is not None so it can be used in call to filter logic
         if month is not None:
-            months.append(month)
+            months = [month]
 
-        # Checks if day is not None so it can be used in call to filter logic
         if day is not None:
-            days.append(day)
+            days = [day]
 
         return self.get_filtered_date_range(years=years, months=months, days=days)

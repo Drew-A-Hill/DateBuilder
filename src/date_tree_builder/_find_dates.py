@@ -3,17 +3,15 @@ import datetime
 from bintrees import RBTree
 
 class FindDate:
-
+    """
+    Internal helper for checking whether a given date exists in an RBTree.
+    """
     @staticmethod
     def find_date_exist(tree: RBTree, date: datetime.date) -> bool:
         """
-        Finds if a date exists in the tree and returns True if the date exists and False if the date does not exist.
-        :param tree: The tree to be searched
-        :param date: The date being searched for
-        :return: Bool response if the date has been found
+        Check whether the given date exists in the tree.
+        :param tree: The tree to be searched. Keys are expected to be datetime.date.
+        :param date: The date being searched for.
+        :return: True if the date exists in the tree, False otherwise.
         """
-        for key in tree.keys():
-            if key == date:
-                return  True
-
-        return False
+        return date in tree.keys()

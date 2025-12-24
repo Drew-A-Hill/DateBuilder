@@ -5,38 +5,48 @@ from bintrees import RBTree
 from ._days_of_week import DaysOfWeek
 
 class AddDates:
+    """
+    Internal helper for inserting single dates or date ranges into an RBTree.
+    """
     def __init__(self, date_obj: object, tree: RBTree, days_of_week: DaysOfWeek):
         """
-        Instantiates the object with the correct arguments to add dates as a key and object as a value to the tree
-        :param date_obj: The object to be used as the default for the value
-        :param tree: The tree that stores the dates and object as a key value pair
+        Initialize an AddDates helper.
+        :param date_obj: Default value to associate with dates when a unique object is not provided.
+        :param tree: RBTree that stores dates as keys and arbitrary values.
+        :param days_of_week: DaysOfWeek instance controlling which weekdays are eligible to be added.
         """
         self.date_obj = date_obj
         self.tree = tree
         self.days_of_week: DaysOfWeek = days_of_week
 
     def _reset_days_of_week(self):
+        """
+        Reset the DaysOfWeek configuration to exclude all days.
+        """
         self.days_of_week.included_days(exclude_all=True)
 
     def _copy_obj(self) -> object:
         """
-        Makes a copy of the object passed by the user. Assumes this is a non-unique object that will have fields updated
-        at a later time
-        :return: The object
-        """
+         Create a shallow copy of the default date_obj.
+         This assumes date_obj is a non-unique template object and that each stored date should get its own copy that
+         may be mutated later.
+         """
         copy: object = self.date_obj
         return copy
 
     def add_date(self, first_date: datetime.date, last_date: datetime.date = None,
                  unique_obj: object = None) -> RBTree:
         """
-        Adds dates to the tree between two dates (inclusive). If there is no last date therefore only the first date
-        will be added. The dates will become the key, and the generic object passed at installation or unique object
-        passed when this method is called is the object.
-        :param first_date: The first date to add to the tree
-        :param last_date: The last date to add to the tree
-        :param unique_obj: The unique object to use as the value if needed otherwise None is the default
-        :return: The tree with the added dates
+        Adds one or more dates to the tree. Adds dates between first_date and last_date (inclusive). If last_date is not
+        provided, only first_date is added. Dates are used as keys in the RBTree. The associated value is either the
+        default date_obj or the unique_obj passed to this method.
+
+        :param first_date: The first date to add to the tree.
+        :param last_date: The last date to add to the tree (inclusive). If None, only first_date is added.
+        :param unique_obj: Optional value to associate with each added date. If None, copy of date_obj is used instead.
+        :raises ValueError: If last_date is earlier than first_date, or if no days of week have been included via
+        DaysOfWeek.
+        :return: The tree with the added dates.
         """
         # Checks for single date entry occurring by lack of last date
         if last_date is None:
