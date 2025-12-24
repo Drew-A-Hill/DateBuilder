@@ -15,6 +15,9 @@ class AddDates:
         self.tree = tree
         self.days_of_week: DaysOfWeek = days_of_week
 
+    def _reset_days_of_week(self):
+        self.days_of_week.included_days(exclude_all=True)
+
     def _copy_obj(self) -> object:
         """
         Makes a copy of the object passed by the user. Assumes this is a non-unique object that will have fields updated
@@ -57,6 +60,9 @@ class AddDates:
                     self.tree.insert(current_date, self._copy_obj())
 
             current_date = current_date + datetime.timedelta(1)
+
+        # Resets the days of week to be added to be False for each day
+        self._reset_days_of_week()
 
         return self.tree
 

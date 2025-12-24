@@ -11,7 +11,7 @@ from ._helper_methods import HelperMethods
 from ._show_dates import ShowDates
 
 class DateBuilder:
-    def __init__(self, tree: RBTree, date_obj: object, days_of_week: DaysOfWeek):
+    def __init__(self, tree: RBTree, date_obj: object):
         """
         Instantiates the object that encapsulates the operations on the tree holding dates with the object to be used
         as the generic value.
@@ -25,19 +25,27 @@ class DateBuilder:
         """
         self.date_obj = date_obj
         self.tree = tree
-        self.days_of_week: DaysOfWeek = days_of_week
+        self.days_of_week: DaysOfWeek = DaysOfWeek()
         self.find = FindDate()
 
     @property
     def get_count(self) -> int:
         """
-        Returns how many elements are in the tree
-        :return:
+        Keeps track of the number of elements in the tree
+        :return: The number of elements in the tree
         """
         return len(self.tree)
 
-    def add_date_tree(self, first_date: datetime.date, last_date: datetime.date = None,
-                      unique_obj: object = None) -> RBTree:
+    @property
+    def is_empty(self) -> bool:
+        """
+        Returns a bool value to check if tree is empty
+        :return: True if tree is empty and False if tree is not empty
+        """
+        return self.tree.is_empty()
+
+    def add_dates(self, first_date: datetime.date, last_date: datetime.date = None,
+                  unique_obj: object = None) -> RBTree:
         """
         Adds dates to the tree between two dates (inclusive). If there is no last date therefore only the first date
         will be added. The dates will become the key, and the generic object passed at installation or unique object
@@ -66,7 +74,7 @@ class DateBuilder:
         """
         return DeleteDates(self.tree, self.days_of_week).delete_date(date)
 
-    def delete_date_range(self, lower_date: datetime.date=None, upper_date: datetime.date=None):
+    def delete_date_range(self, lower_date: datetime.date=None, upper_date: datetime.date=None) -> RBTree:
         """
         Deletes a range of dates from the tree, if weekdays have been added then also deletes by day of week
         :param lower_date:
@@ -117,8 +125,7 @@ class DateBuilder:
         """
         return FilteredDates(self.tree, self.days_of_week).get_filtered_date_range(days, months, years)
 
-    @staticmethod
-    def include_days_of_week(monday=False, tuesday=False, wednesday=False, thursday=False, friday=False,
+    def include_days_of_week(self, monday=False, tuesday=False, wednesday=False, thursday=False, friday=False,
                              saturday=False, sunday=False, include_all=False, exclude_all=False) -> None:
         """
 
@@ -133,8 +140,8 @@ class DateBuilder:
         :param exclude_all:
         :return:
         """
-        return DaysOfWeek().included_days(monday, tuesday, wednesday, thursday, friday, saturday, sunday, include_all,
-                                          exclude_all)
+        self.days_of_week.included_days(monday, tuesday, wednesday, thursday, friday, saturday, sunday, include_all,
+                                        exclude_all)
 
     @staticmethod
     def display_dates(tree: RBTree) -> None:

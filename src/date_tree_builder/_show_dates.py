@@ -10,13 +10,8 @@ class ShowDates:
         Displays the dates in the tree to the terminal to provide user with a visual representation of the dates added
         :return: None
         """
-        current: datetime.date = tree.min_key()
+        if tree.is_empty():
+            raise KeyError("Tree is empty")
 
-        while current is not None:
-            print(current)
-
-            try:
-                current = tree.succ_key(current)
-
-            except KeyError:
-                current = None
+        for key in tree.keys():
+            print(key)

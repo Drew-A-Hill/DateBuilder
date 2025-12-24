@@ -1,347 +1,480 @@
 import datetime
 import datetime as dt
-from typing import Any
+from typing import Any, Dict
 
-import date_builder
 import pytest
 from bintrees import RBTree
 
-# import date_builder
-from date_builder import DateBuilder
-from date_builder._days_of_week import DaysOfWeek
+import date_tree_builder.date_builder as datebuilder
+from date_tree_builder.date_builder import DateBuilder
 
 
-# --- Dummies / helpers for tests -------------------------------------------------
-
-
-class DummyDaysOfWeek:
-    """Minimal stand-in for DaysOfWeek so no need to depend on real implementation."""
+# --------------- Creates a dummy date object for the test ------------------
+class DummyObject:
+    """
+    Creates dummy object to be used as the date object
+    """
     def __init__(self):
-        self._included = set()
-        self.included_calls = []
+        self.date = None
+
+# --------------- Tests getting the count of elements added ----------------
 
-    def get_included(self):
-        return self._included
+def test_get_count():
+    """
+    Tests how getting the count of the number of dates in the tree
+    """
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
 
-    def included_days(
-        self,
-        monday,
-        tuesday,
-        wednesday,
-        thursday,
-        friday,
-        saturday,
-        sunday,
-        include_all,
-        exclude_all,
-    ):
-        # Record the call so tests can assert it was invoked correctly
-        self.included_calls.append(
-            dict(
-                monday=monday,
-                tuesday=tuesday,
-                wednesday=wednesday,
-                thursday=thursday,
-                friday=friday,
-                saturday=saturday,
-                sunday=sunday,
-                include_all=include_all,
-                exclude_all=exclude_all,
-            )
-        )
-        # Return the internal set just to have a deterministic value
-        return self._included
+    # Include all days of week
+    db.include_days_of_week(include_all=True)
 
+    # Determines range of dates to add
+    first: datetime.date = datetime.date(2025, 1, 1)
+    last: datetime.date = datetime.date(2025, 1, 5)
+
+    # Add 5 dates to tree
+    db.add_dates(first, last)
+
+    assert db.get_count == 5
 
-@pytest.fixture
-def empty_builder() -> DateBuilder:
-    """Provide a fresh DateBuilder with an empty RBTree and dummy DaysOfWeek."""
-    tree = RBTree()
-    dow: DaysOfWeek = DummyDaysOfWeek()
-    builder = DateBuilder(tree=tree, date_obj="DEFAULT_VALUE", days_of_week=dow)
-    return builder
+def test_get_count_empty():
+    """
+    Tests how getting the count of the number of dates when there are no elements added to the tree
+    """
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
 
+    assert db.get_count == 0
 
-# Testing Over Basic Behavior
+def test_count_after_remove():
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
 
+    # Include all days of week
+    db.include_days_of_week(include_all=True)
 
-def test_get_count(empty_builder: date_builder):
-    builder = empty_builder
-    assert builder.get_count == 0
+    # Determines range of dates to add
+    first: datetime.date = datetime.date(2025, 1, 1)
+    last: datetime.date = datetime.date(2025, 1, 5)
 
-    # Directly modify the underlying tree to verify the property tracks it
-    today = dt.date(2025, 1, 1)
-    builder.tree[today] = "X"
-    assert builder.get_count == 1
+    # Add 5 dates to tree
+    db.add_dates(first, last)
 
-    another = dt.date(2025, 1, 2)
-    builder.tree[another] = "Y"
-    assert builder.get_count == 2
+    assert db.get_count == 5
 
+    # Remove 01/01/2025
+    db.delete_date(first)
 
-# --- add_date_tree wiring to AddDates -------------------------------------------
+    assert db.get_count == 4
 
+# ------------------------------ Tests adding dates ------------------------------
 
-def test_add_date_correct_arguments(monkeypatch: monkeypatch, empty_builder: date_builder):
-    builder = empty_builder
-    called: dict[Any, Any] = {}
+def test_add_date_range():
+    """
+    Tests successful adding of date range
+    """
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
 
-    class FakeAddDates:
-        last_instance = None
+    # Include all days of week
+    db.include_days_of_week(include_all=True)
 
-        def __init__(self, date_obj, tree, days_of_week):
-            FakeAddDates.last_instance = self
-            called["init"] = (date_obj, tree, days_of_week)
+    # Determines range of dates to add
+    first: datetime.date = datetime.date(2025, 1, 1)
+    last: datetime.date = datetime.date(2025, 1, 5)
 
-        @staticmethod
-        def add_date(first_date, last_date, unique_obj):
-            called["add_date"] = (first_date, last_date, unique_obj)
-            return "SENTINEL_TREE"
+    # Add 5 dates to tree
+    result: RBTree = db.add_dates(first, last)
 
-    monkeypatch.setattr(date_builder, "AddDates", FakeAddDates)
+    current = first
 
-    d1 = dt.date(2025, 1, 1)
-    d2 = dt.date(2025, 1, 5)
+    # Checks if dates are in tree
+    for key in result.keys():
+        assert key == current
+        current = current + datetime.timedelta(1)
+
+def test_add_single_date():
+    """
+        Tests successful adding of a single date
+        """
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
+
+    # Include all days of week
+    db.include_days_of_week(include_all=True)
+
+    # Determines range of dates to add
+    first: datetime.date = datetime.date(2025, 1, 1)
+    last: datetime.date = datetime.date(2025, 1, 1)
+
+    # Add date to tree
+    date_tree: RBTree = db.add_dates(first, last)
+    result: datetime.date = date_tree.min_key()
+
+    # Checks if dates are in tree
+    count_results: int = len(date_tree)
+
+    assert count_results == 1
+    assert result == first
+
+def test_lower_bound_date_greater():
+    """
+    Tests that a ValueError exception is correctly raised when the lower bound date is greater than upper bound date
+    """
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
+
+    # Include all days of week
+    db.include_days_of_week(include_all=True)
+
+    # Determines range of dates to add
+    first: datetime.date = datetime.date(2025, 1, 2)
+    last: datetime.date = datetime.date(2025, 1, 1)
+
+    with pytest.raises(ValueError):
+        db.add_dates(first, last)
+
+# ------------------------------ Tests deleting dates ------------------------------
+
+# ------------------------------ Tests filtering dates -----------------------------
+
+# ------------------------------ Tests finding dates -------------------------------
+
+# ------------------ Tests the include_days_of_week functionality ------------------
+
+def test_include_all_days_of_week():
+    """
+    Tests to see if all the days of week have been added successfully
+    """
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
+
+    # Includes all dates
+    db.include_days_of_week(include_all=True)
+
+    # Retrieves the list of added days of week
+    results: list[int] = db.days_of_week.get_included()
+
+    # Checks that all days of week have been added
+    for i in range(len(results)):
+        assert results[i] == i
+
+    # Checks for 0 dow elements in list
+    assert len(results) == 7
+
+def test_exclude_all_days_of_week():
+    """
+    Tests to see if all the days of week have been added excluded
+    """
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
+
+    # Includes all dates
+    db.include_days_of_week(exclude_all=True)
+
+    # Retrieves the list of added days of week
+    results: list[int] = db.days_of_week.get_included()
+
+    # Checks for 0 dow elements in list
+    assert len(results) == 0
+
+def test_days_of_week_both_include_exclude_true():
+    """
+    Tests to see if a ValueError exception is correctly raised when both include_all and exclude_all are marked True
+    """
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
+
+    # Includes all dates
+    with pytest.raises(ValueError):
+        db.include_days_of_week(include_all=True, exclude_all=True)
+
+def test_days_of_week_both_include_all_and_day_true():
+    """
+    Tests to see if a ValueError exception is correctly raised when both include_all and a day of week are marked True
+    """
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
 
-    result = builder.add_date_tree(d1, d2, unique_obj="UNIQUE")
+    # Includes all dates
+    with pytest.raises(ValueError):
+        db.include_days_of_week(include_all=True, monday=True)
 
-    # Return value is the helper's return value
-    assert result == "SENTINEL_TREE"
+def test_days_of_week_both_exclude_all_and_day_true():
+    """
+    Tests to see if a ValueError exception is correctly raised when both exclude_all and a day of week are marked True
+    """
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
+
+    # Includes all dates
+    with pytest.raises(ValueError):
+        db.include_days_of_week(exclude_all=True, monday=True)
+
+def test_add_remove_dow():
+    """
+    Tests including single days of the week
+    """
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
+
+    def remove_and_test():
+        """
+        Removes and tests that dows have been removed
+        """
+        db.include_days_of_week(exclude_all=True)
+        result: int = len(db.days_of_week.get_included())
+
+        # Checks for no days included
+        assert result == 0
 
-    # Constructor was called correctly
-    assert called["init"][0] == builder.date_obj
-    assert called["init"][1] is builder.tree
-    assert called["init"][2] is builder.days_of_week
+    # Includes days and checks it has been included then removes days and checks it has been removed
+    # Include Monday (0)
+    db.include_days_of_week(monday=True)
+    result: int = db.days_of_week.get_included()[0]
+
+    assert result == 0
+
+    # Remove Monday
+    remove_and_test()
+
+    # Include Tuesday (1)
+    db.include_days_of_week(tuesday=True)
+    result: int = db.days_of_week.get_included()[0]
+
+    assert result == 1
+
+    # Remove Tuesday
+    remove_and_test()
+
+    # Include Wednesday (2)
+    db.include_days_of_week(wednesday=True)
+    result: int = db.days_of_week.get_included()[0]
+
+    assert result == 2
+
+    # Remove Wednesday
+    remove_and_test()
 
-    # Method was called with the same arguments we passed
-    assert called["add_date"] == (d1, d2, "UNIQUE")
-
-
-# --- find_date uses FindDate.find_date_exist ------------------------------------
-
-
-def test_find_date(monkeypatch: monkeypatch, empty_builder: DateBuilder):
-    builder = empty_builder
-    called = {}
-
-    class FakeFindDate:
-        @staticmethod
-        def find_date_exist(tree: RBTree, date: datetime.date):
-            called["args"] = (tree, date)
-            return True
-
-    monkeypatch.setattr(builder, "FindDate", FakeFindDate)
-
-    # Rebuild builder so its .find field uses FakeFindDate
-    tree = RBTree()
-    dow = DummyDaysOfWeek()
-    builder = DateBuilder(tree=tree, date_obj="DEFAULT", days_of_week=dow)
-
-    target = dt.date(2025, 1, 3)
-    result = builder.find_date(target)
-
-    assert result is True
-    assert called["args"][0] is tree
-    assert called["args"][1] == target
-
-
-# --- delete_date wiring to DeleteDates.delete_date -------------------------------
-
-
-def test_delete_date_calls_deletedates(monkeypatch, empty_builder):
-    builder = empty_builder
-    called = {}
-
-    class FakeDeleteDates:
-        last_instance = None
-
-        def __init__(self, tree, days_of_week):
-            FakeDeleteDates.last_instance = self
-            called["init"] = (tree, days_of_week)
-
-        def delete_date(self, date):
-            called["delete_date"] = date
-            return "TREE_WITH_DELETION"
-
-    monkeypatch.setattr(date_builder, "DeleteDates", FakeDeleteDates)
-
-    date_to_delete = dt.date(2025, 1, 10)
-    result = builder.delete_date(date_to_delete)
-
-    assert result == "TREE_WITH_DELETION"
-    assert called["init"][0] is builder.tree
-    assert called["init"][1] is builder.days_of_week
-    assert called["delete_date"] == date_to_delete
-
-
-# --- delete_date_range wiring ---------------------------------------------------
-
-
-def test_delete_date_range_calls_deletedates_range(monkeypatch, empty_builder):
-    builder = empty_builder
-    called = {}
-
-    class FakeDeleteDates:
-        def __init__(self, tree, days_of_week):
-            called["init"] = (tree, days_of_week)
-
-        def delete_date_range(self, upper, lower):
-            called["range"] = (upper, lower)
-            return "RANGE_TREE"
-
-    monkeypatch.setattr(date_builder, "DeleteDates", FakeDeleteDates)
-
-    lower = dt.date(2025, 1, 1)
-    upper = dt.date(2025, 1, 31)
-
-    result = builder.delete_date_range(lower_date=lower, upper_date=upper)
-
-    assert result == "RANGE_TREE"
-    # Note: DateBuilder uses (upper_date, lower_date) order in the call
-    assert called["range"] == (upper, lower)
-    assert called["init"][0] is builder.tree
-    assert called["init"][1] is builder.days_of_week
-
-
-# --- filter_dates wiring to FilteredDates.get_filtered_dates ---------------------
-
-
-def test_filter_dates_calls_filtered_dates(monkeypatch, empty_builder):
-    builder = empty_builder
-    called = {}
-
-    class FakeFilteredDates:
-        def __init__(self, tree, days_of_week):
-            called["init"] = (tree, days_of_week)
-
-        def get_filtered_dates(self, day, month, year):
-            called["get_filtered_dates"] = (day, month, year)
-            return "FILTERED_TREE"
-
-    monkeypatch.setattr(date_builder, "FilteredDates", FakeFilteredDates)
-
-    result = builder.filter_dates(day=1, month=2, year=2025)
-
-    assert result == "FILTERED_TREE"
-    assert called["init"][0] is builder.tree
-    assert called["init"][1] is builder.days_of_week
-    assert called["get_filtered_dates"] == (1, 2, 2025)
-
-
-# --- filtered_date_range wiring to FilteredDates.get_filtered_date_range ---------
-
-
-def test_filtered_date_range_calls_filtered_date_range(monkeypatch, empty_builder):
-    builder = empty_builder
-    called = {}
-
-    class FakeFilteredDates:
-        def __init__(self, tree, days_of_week):
-            called["init"] = (tree, days_of_week)
-
-        def get_filtered_date_range(self, days, months, years):
-            called["get_filtered_date_range"] = (days, months, years)
-            return "FILTERED_RANGE_TREE"
-
-    monkeypatch.setattr(date_builder, "FilteredDates", FakeFilteredDates)
-
-    result = builder.filtered_date_range(days=[1, 2], months=[1], years=[2025])
-
-    assert result == "FILTERED_RANGE_TREE"
-    assert called["init"][0] is builder.tree
-    assert called["init"][1] is builder.days_of_week
-    assert called["get_filtered_date_range"] == ([1, 2], [1], [2025])
-
-
-# --- include_days_of_week staticmethod ------------------------------------------
-
-
-def test_include_days_of_week_uses_days_of_week_class(monkeypatch):
-    called = {}
-
-    class FakeDaysOfWeek:
-        def included_days(
-            self,
-            monday,
-            tuesday,
-            wednesday,
-            thursday,
-            friday,
-            saturday,
-            sunday,
-            include_all,
-            exclude_all,
-        ):
-            called["args"] = dict(
-                monday=monday,
-                tuesday=tuesday,
-                wednesday=wednesday,
-                thursday=thursday,
-                friday=friday,
-                saturday=saturday,
-                sunday=sunday,
-                include_all=include_all,
-                exclude_all=exclude_all,
-            )
-            return "INCLUDED_RESULT"
-
-    monkeypatch.setattr(date_builder, "DaysOfWeek", FakeDaysOfWeek)
-
-    result = DateBuilder.include_days_of_week(
-        monday=True,
-        wednesday=True,
-        friday=True,
-        include_all=False,
-        exclude_all=False,
-    )
-
-    assert result == "INCLUDED_RESULT"
-    assert called["args"]["monday"] is True
-    assert called["args"]["wednesday"] is True
-    assert called["args"]["friday"] is True
-    # The others should default to False
-    assert called["args"]["tuesday"] is False
-    assert called["args"]["thursday"] is False
-    assert called["args"]["saturday"] is False
-    assert called["args"]["sunday"] is False
-
-
-# --- display_dates staticmethod --------------------------------------------------
-
-
-def test_display_dates_calls_showdates(monkeypatch):
-    called = {}
-
-    class FakeShowDates:
-        @staticmethod
-        def show_dates(tree):
-            called["tree"] = tree
-
-    monkeypatch.setattr(date_builder, "ShowDates", FakeShowDates)
-
-    tree = RBTree()
-    tree[dt.date(2025, 1, 1)] = "X"
-
-    DateBuilder.display_dates(tree)
-
-    assert called["tree"] is tree
-
-
-# --- str_to_date staticmethod ----------------------------------------------------
-
-
-def test_str_to_date(monkeypatch):
-    called = {}
+    # Include Thursday (3)
+    db.include_days_of_week(thursday=True)
+    result: int = db.days_of_week.get_included()[0]
+
+    assert result == 3
+
+    # Remove Thursday
+    remove_and_test()
+
+    # Include Friday (4)
+    db.include_days_of_week(friday=True)
+    result: int = db.days_of_week.get_included()[0]
+
+    assert result == 4
+
+    # Remove Friday
+    remove_and_test()
+
+    # Include Saturday (5)
+    db.include_days_of_week(saturday=True)
+    result: int = db.days_of_week.get_included()[0]
+
+    assert result == 5
+
+    # Remove Saturday
+    remove_and_test()
+
+    # Include Sunday (6)
+    db.include_days_of_week(sunday=True)
+    result: int = db.days_of_week.get_included()[0]
+
+    assert result == 6
+
+    # Remove Sunday
+    remove_and_test()
+
+def test_add_remove_multi_dow():
+    """
+    Tests including multiple days of the week and excluding them
+    """
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
+
+    def remove_and_test():
+        """
+        Removes and tests that dows have been removed
+        """
+        db.include_days_of_week(exclude_all=True)
+        result: int = len(db.days_of_week.get_included())
+
+        # Checks for no days included
+        assert result == 0
+
+    # Include Monday (0) and Tuesday (1)
+    db.include_days_of_week(monday=True)
+    db.include_days_of_week(tuesday=True)
+
+    result_mon: int = db.days_of_week.get_included()[0]
+    assert result_mon == 0
+
+    result_tue: int = db.days_of_week.get_included()[1]
+    assert result_tue == 1
+
+    result_count: int = len(db.days_of_week.get_included())
+    assert  result_count == 2
+
+    remove_and_test()
+
+def test_reset_after_add():
+    """
+    Tests that day of week tracker is reset after each add instance
+    """
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
+
+    # Includes 3 days
+    db.include_days_of_week(monday=True, wednesday=True, friday=True)
+
+    # Determines date range
+    first: datetime.date = datetime.date(2025, 1, 1)
+    last: datetime.date = datetime.date(2025, 1, 31)
+
+    # Checks that there are 3 days of week
+    result = len(db.days_of_week.get_included())
+    assert result == 3
+
+    # Adds dates in range based on day of week
+    db.add_dates(first, last)
+
+    # Checks for reset
+    result = len(db.days_of_week.get_included())
+    assert result == 0
+
+# --------------- Below tests the display_dates functionality ---------------
+
+def test_display_dates_non_empty_tree():
+    """
+    Tests display date for a non-empty tree. This is a manual test where the dates 2025/01/01, 2025/01/02,
+    2025/01/03, 2025/01/04, 2025/01/05 should appear in the terminal
+    """
+    # Sets up tree with added dates so display dates can be tested
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
+
+    # Sets first and last date in datetime
+    first_date: datetime.date = dt.date(2025, 1, 1)
+    last_date: datetime.date = dt.date(2025, 1, 5)
+
+    # Includes days of week
+    db.include_days_of_week(include_all=True)
+
+    # Adds dates to tree
+    db.add_dates(first_date, last_date)
+
+    # Displays the tree in the terminal
+    db.display_dates(tree)
+
+def test_display_dates_empty_tree():
+    """
+    Tests display date for an empty tree. This should raise a KeyError Exception.
+    """
+    # Sets up tree with added dates so display dates can be tested
+    # Sets up the date builder with a tree and date object
+    tree: RBTree = RBTree()
+    date_obj: object = DummyObject()
+    db: DateBuilder = DateBuilder(tree, date_obj)
+
+    # Tries to display dates of an empty tree
+    with pytest.raises(KeyError):
+        db.display_dates(tree)
+
+# --------------- Below tests the str_to_date functionality ---------------
+def test_str_to_date_pass(monkeypatch: pytest.MonkeyPatch):
+    """
+    Tests to see if str_to_date returns the correct date time
+    """
+    called: Dict[str, Any] = {}
 
     class FakeHelperMethods:
         @staticmethod
-        def str_to_date(date_str: str):
+        def str_to_date(date_str: str) -> dt.date:
             called["arg"] = date_str
-            # Return a sentinel date so we know this was used
-            return dt.date(1999, 12, 31)
+            # Sentinel value so we know this was used
+            return dt.date(2025, 12, 31)
 
-    monkeypatch.setattr(date_builder, "HelperMethods", FakeHelperMethods)
+    monkeypatch.setattr(datebuilder, "HelperMethods", FakeHelperMethods)
 
     result = DateBuilder.str_to_date("01/01/2025")
-    assert result == dt.date(1999, 12, 31)
+
+    assert result == dt.date(2025, 12, 31)
     assert called["arg"] == "01/01/2025"
+
+def test_str_to_date_failed_match():
+    """
+    Tests for that dates don't match when providing differing dates
+    """
+    result = DateBuilder.str_to_date("01/01/2025")
+
+    assert not result == dt.date(2021, 12, 31)
+
+def test_str_to_date_correct_raise_invalid_y_m_d():
+    """
+    Tests that a ValueError exception is correctly raised when providing a date in an invalid format yyyy/mm/dd rather
+    than dd/mm/yyyy
+    """
+    with pytest.raises(ValueError):
+        DateBuilder.str_to_date("2025/01/01")
+
+def test_str_to_date_correct_raise_invalid_year_len():
+    """
+    Tests that a ValueError exception is correctly raised when providing a date in an invalid format dd/mm/yyyyy rather
+    than dd/mm/yyyy
+    """
+    with pytest.raises(ValueError):
+        DateBuilder.str_to_date("01/01/20205")
+
+def test_str_to_date_correct_raise_invalid_seperator():
+    """
+    Tests that a ValueError exception is correctly raised when providing a date in an invalid format dd-mm-yyyy rather
+    than dd/mm/yyyy
+    """
+    with pytest.raises(ValueError):
+        DateBuilder.str_to_date("01-01-2025")
+
+def test_str_to_date_correct_raise_invalid_type():
+    """
+    Tests that a TypeError exception is correctly raised when providing a date as a datetime rather than str
+    """
+    date: datetime.date = datetime.date(2025, 1, 1)
+
+    with pytest.raises(TypeError):
+        DateBuilder.str_to_date(date)

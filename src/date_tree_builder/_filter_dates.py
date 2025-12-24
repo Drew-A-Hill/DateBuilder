@@ -9,6 +9,9 @@ class FilteredDates:
         self.tree = tree
         self.days_of_week = days_of_week
 
+    def _reset_days_of_week(self):
+        self.days_of_week.included_days(exclude_all=True)
+
     def get_filtered_date_range(self, days: list[int] = None, months: list[int] = None,
                                 years: list[int] = None) -> RBTree:
         """
@@ -18,6 +21,9 @@ class FilteredDates:
         :param years:
         :return:
         """
+        # Resets all days of week in filter to be None for each call
+        self._reset_days_of_week()
+
         filtered_range: RBTree = RBTree()
 
         for key in self.tree.keys():
