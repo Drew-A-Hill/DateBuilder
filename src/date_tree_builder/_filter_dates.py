@@ -23,8 +23,8 @@ class FilteredDates:
         """
         self.days_of_week.included_days(exclude_all=True)
 
-    def get_filtered_date_range(self, days: list[int] = None, months: list[int] = None,
-                                years: list[int] = None) -> RBTree:
+    def filtered_date_range(self, days: list[int] = None, months: list[int] = None,
+                            years: list[int] = None) -> RBTree:
         """
         Retrieve dates filtered by optional lists of days, months, years, and/or day of week. If the DaysOfWeek
         configuration has included weekdays, the date's weekday must also be one of those.
@@ -38,20 +38,20 @@ class FilteredDates:
 
         for key in self.tree.keys():
             # Filter by year
-            if years is not None and key.year not in years:
+            if len(years) > 0 and key.year not in years:
                 continue
 
             # Filter by month
-            if months is not None and key.month not in months:
+            if len(months) > 0  and key.month not in months:
                 continue
 
             # Filter by day of month
-            if days is not None and key.day not in days:
+            if len(days) > 0 and key.day not in days:
                 continue
 
             # Filter by day of week if any are configured
-            included_weekdays = self.days_of_week.get_included()
-            if included_weekdays and key.weekday() not in included_weekdays:
+            included_weekdays = self.days_of_week.included
+            if key.weekday() not in included_weekdays:
                 continue
 
             # If the date meets all criteria insert into the filtered tree
@@ -66,12 +66,7 @@ class FilteredDates:
 
         return filtered_range
 
-    def get_filtered_dates(
-        self,
-        day: int | None = None,
-        month: int | None = None,
-        year: int | None = None,
-    ) -> RBTree:
+    def filtered_dates(self, day: int = None, month: int = None, year: int  = None) -> RBTree:
         """
         Retrieve dates filtered by optional single day, month, and/or year.
         :param day: Optional day-of-month to filter by.
@@ -80,9 +75,9 @@ class FilteredDates:
         :raises ValueError: If no dates match the given filters.
         :return: A new RBTree containing filtered dates.
         """
-        years: list[int] | None = None
-        months: list[int] | None = None
-        days: list[int] | None = None
+        years: list[int]  = []
+        months: list[int] = []
+        days: list[int] = []
 
         if year is not None:
             years = [year]
@@ -93,4 +88,4 @@ class FilteredDates:
         if day is not None:
             days = [day]
 
-        return self.get_filtered_date_range(years=years, months=months, days=days)
+        return self.filtered_date_range(years=years, months=months, days=days)

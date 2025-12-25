@@ -59,18 +59,42 @@ class DateBuilder:
         :param tree: RBTree instance used to store dates as keys.
         :param date_obj: Default value to associate with dates.
         """
-        self.date_obj = date_obj
-        self.tree = tree
-        self.days_of_week: DaysOfWeek = DaysOfWeek()
-        self.find = FindDate()
+        self._date_obj = date_obj
+        self._tree = tree
+        self._days_of_week: DaysOfWeek = DaysOfWeek()
+        self._find = FindDate()
 
     @property
-    def get_count(self) -> int:
+    def date_obj(self) -> object:
+        """
+        Gets the date object to be used as the value.
+        :return: The date object
+        """
+        return self._date_obj
+
+    @property
+    def tree(self) -> RBTree:
+        """
+        Gets the instance of the RBTree.
+        :return: Returns the instance of the RBTree containing its elements.
+        """
+        return self._tree
+
+    @property
+    def included_days(self) -> list[int]:
+        """
+        Gets the list of days of the week that have been included by user.
+        :return: Returns the list of days of the week.
+        """
+        return self._days_of_week.included
+
+    @property
+    def count(self) -> int:
         """
         Keeps track of the number of elements in the tree.
         :return: The number of elements in the tree.
         """
-        return len(self.tree)
+        return len(self._tree)
 
     @property
     def is_empty(self) -> bool:
@@ -78,16 +102,14 @@ class DateBuilder:
         Returns a bool value to check if tree is empty.
         :return: True if tree is empty and False if tree is not empty.
         """
-        return self.tree.is_empty()
+        return self._tree.is_empty()
 
-    def add_dates(self, first_date: datetime.date, last_date: datetime.date = None,
-                  unique_obj: object = None) -> RBTree:
+    def add_dates(self, first_date: datetime.date, last_date: datetime.date = None) -> RBTree:
         """
         Adds dates desired dates to the tree
 
         :param first_date: The first date to add to the tree.
         :param last_date: The last date to add to the tree.
-        :param unique_obj: The unique object to use as the value if needed otherwise None is the default.
         :raises ValueError: Raised if first date is less than last date, or no days of week have been added.
 
         Recommended Usage:
@@ -102,15 +124,16 @@ class DateBuilder:
 
         :return: The tree with the added dates.
         """
-        return AddDates(self.date_obj, self.tree, self.days_of_week).add_date(first_date, last_date, unique_obj)
+        return AddDates(self._date_obj, self._tree, self._days_of_week).add_date(first_date, last_date)
 
-    def find_date(self, date: datetime.date) -> bool:
+    def find_date(self, tree: RBTree , date: datetime.date) -> bool:
         """
         Finds if a date exists in the tree and returns True if the date exists and False if the date does not exist.
+        :param tree: Tree where the dates are stored.
         :param date: The date being searched for.
         :return: Bool response if the date has been found.
         """
-        return self.find.find_date_exist(self.tree, date)
+        return self._find.find_date_exist(tree, date)
 
     def delete_date(self, date: datetime.date) -> RBTree:
         """
@@ -120,9 +143,9 @@ class DateBuilder:
         :raises ValueError: Raised if date does not exist in tree.
         :return: The tree with the date removed.
         """
-        return DeleteDates(self.tree, self.days_of_week).delete_date(date)
+        return DeleteDates(self._tree, self._days_of_week).delete_date(date)
 
-    def delete_date_range(self, lower_date: datetime.date=None, upper_date: datetime.date=None) -> RBTree:
+    def delete_date_range(self, lower_date: datetime.date = None, upper_date: datetime.date = None) -> RBTree:
         """
         Deletes a range of dates from the tree.
         :param lower_date: Lower bound of dates to be deleted.
@@ -138,7 +161,7 @@ class DateBuilder:
 
         :return: Returns a tree without the deleted dates
         """
-        return DeleteDates(self.tree, self.days_of_week).delete_date_range(upper_date, lower_date)
+        return DeleteDates(self._tree, self._days_of_week).delete_date_range(lower_date, upper_date)
 
 
     def filter_dates(self, day: int = None, month: int = None, year: int = None) -> RBTree:
@@ -173,7 +196,7 @@ class DateBuilder:
 
         :return: A new tree containing filtered dates.
         """
-        return FilteredDates(self.tree, self.days_of_week).get_filtered_dates(day, month, year)
+        return FilteredDates(self._tree, self._days_of_week).filtered_dates(day=day, month=month, year=year)
 
     def filtered_date_range(self, days: list[int] = None, months: list[int] = None,
                                 years: list[int] = None) -> RBTree:
@@ -206,7 +229,7 @@ class DateBuilder:
 
         :return: A new tree containing filtered dates.
         """
-        return FilteredDates(self.tree, self.days_of_week).get_filtered_date_range(days, months, years)
+        return FilteredDates(self._tree, self._days_of_week).filtered_date_range(days=days, months=months, years=years)
 
     def include_days_of_week(self, monday=False, tuesday=False, wednesday=False, thursday=False, friday=False,
                              saturday=False, sunday=False, include_all=False, exclude_all=False) -> None:
@@ -223,8 +246,8 @@ class DateBuilder:
         :param exclude_all: If marked True excludes all days of week.
         :return: None
         """
-        self.days_of_week.included_days(monday, tuesday, wednesday, thursday, friday, saturday, sunday, include_all,
-                                        exclude_all)
+        self._days_of_week.included_days(monday, tuesday, wednesday, thursday, friday, saturday, sunday, include_all,
+                                         exclude_all)
 
     @staticmethod
     def display_dates(tree: RBTree) -> None:

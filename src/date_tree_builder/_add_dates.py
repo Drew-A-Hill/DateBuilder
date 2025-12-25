@@ -19,31 +19,28 @@ class AddDates:
         self.tree = tree
         self.days_of_week: DaysOfWeek = days_of_week
 
-    def _reset_days_of_week(self):
+    def _reset_days_of_week(self) -> None:
         """
         Reset the DaysOfWeek configuration to exclude all days.
+        :returns: None
         """
         self.days_of_week.included_days(exclude_all=True)
 
     def _copy_obj(self) -> object:
         """
          Create a shallow copy of the default date_obj.
-         This assumes date_obj is a non-unique template object and that each stored date should get its own copy that
-         may be mutated later.
+         :returns: Returns the shallow copy.
          """
         copy: object = self.date_obj
         return copy
 
-    def add_date(self, first_date: datetime.date, last_date: datetime.date = None,
-                 unique_obj: object = None) -> RBTree:
+    def add_date(self, first_date: datetime.date, last_date: datetime.date = None) -> RBTree:
         """
         Adds one or more dates to the tree. Adds dates between first_date and last_date (inclusive). If last_date is not
         provided, only first_date is added. Dates are used as keys in the RBTree. The associated value is either the
-        default date_obj or the unique_obj passed to this method.
-
+        default date_obj.
         :param first_date: The first date to add to the tree.
         :param last_date: The last date to add to the tree (inclusive). If None, only first_date is added.
-        :param unique_obj: Optional value to associate with each added date. If None, copy of date_obj is used instead.
         :raises ValueError: If last_date is earlier than first_date, or if no days of week have been included via
         DaysOfWeek.
         :return: The tree with the added dates.
@@ -60,14 +57,10 @@ class AddDates:
 
         current_date: datetime.date = first_date
         while current_date <= last_date:
-            if current_date.weekday() in self.days_of_week.get_included():
+            if current_date.weekday() in self.days_of_week.included:
 
-                # Checks if user has passed a unique object for each date.
-                if unique_obj is not None:
-                    self.tree.insert(current_date, unique_obj)
-
-                else:
-                    self.tree.insert(current_date, self._copy_obj())
+               # Inserts date into the tree
+                self.tree.insert(current_date, self._copy_obj())
 
             current_date = current_date + datetime.timedelta(1)
 

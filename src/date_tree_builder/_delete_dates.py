@@ -46,8 +46,15 @@ class DeleteDates:
         :raises ValueError: If both lower_date and upper_date are None.
         :return: The tree with the specified dates removed.
         """
+        if self.tree.is_empty():
+            raise ValueError("Can not delete from empty tree")
+
         if lower_date is None and upper_date is None:
             raise ValueError("Both lower_date and upper_date cannot be None")
+
+        if lower_date is not None and upper_date is not None:
+            if lower_date > upper_date:
+                raise ValueError(f"Lower date must be less than or equal to upper date")
 
         keys_to_delete: list[datetime.date] = []
 
@@ -59,7 +66,6 @@ class DeleteDates:
             # If upper bound exists and key is above it break from loop
             if upper_date is not None and key > upper_date:
                 break
-
             # Add keys to be deleted to list
             keys_to_delete.append(key)
 

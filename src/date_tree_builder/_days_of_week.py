@@ -11,15 +11,15 @@ class DaysOfWeek:
         """
         self.included_days_list: list[int] = []
 
-    def get_included(self) -> list[int]:
+    @property
+    def included(self) -> list[int]:
         """
         Return the list of included weekdays.
         :return: A list of integers representing included weekdays (0 = Monday, ..., 6 = Sunday).
         """
         return self.included_days_list
 
-    @staticmethod
-    def _include_exclude_check(days_list: list[bool], action: str) -> None:
+    def _include_exclude_check(self, days_list: list[bool], action: str) -> None:
         """
         Validate that no specific days are marked True when using an include_all or exclude_all action.
         :param days_list: List of booleans indicating which days are set.
