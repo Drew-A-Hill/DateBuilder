@@ -1,7 +1,19 @@
+# Python cache
 __pycache__/
 *.pyc
+
+# Pytest
 .pytest_cache/
+
+# IDE / OS
 .idea/
 .DS_Store
+
+# Virtual environments
 .venv/
 venv/
+
+# Build / packaging artifacts
+dist/
+build/
+*.egg-info/

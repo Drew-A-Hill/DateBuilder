@@ -58,3 +58,11 @@ builder.add_dates(date(2025, 1, 1), date(2025, 1, 31))
 
 # Filter dates in January 2025
 filtered = builder.filter_dates(month=1, year=2025)
+```
+
+## Installation
+
+Install from PyPI:
+
+```bash
+pip install date-builder
