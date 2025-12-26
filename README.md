@@ -1,14 +1,14 @@
-# DateBuilder
+# DateTree
 
-**DateBuilder** is a high-level Python utility for managing, filtering, and querying collections of dates stored in a **Red Black Tree (RBTree)**.
+**DateTree** is a high-level Python utility for managing, filtering, and querying collections of dates stored in a **Red Black Tree (RBTree)**.
 
 It provides a clean, expressive API for adding date ranges, filtering by calendar fields, and performing efficient date queries, while guaranteeing predictable performance and sorted traversal.
 
 ---
 
-## Why DateBuilder?
+## Why DateTree?
 
-DateBuilder is useful when you need to:
+DateTree is useful when you need to:
 
 - Store large collections of dates efficiently
 - Perform frequent date-based queries (year, month, day)
@@ -45,10 +45,10 @@ include days of the week, add a date range, and filter results.
 ```python
 from datetime import date
 from bintrees import RBTree
-from date_tree_builder.date_builder import DateBuilder
+from date_tree.date_tree import DateTree
 
 tree = RBTree()
-builder = DateBuilder(tree, date_obj="example")
+builder = DateTree(tree, date_obj="example")
 
 # Include all days of the week
 builder.include_days_of_week(include_all=True)
@@ -65,4 +65,4 @@ filtered = builder.filter_dates(month=1, year=2025)
 Install from PyPI:
 
 ```bash
-pip install date-builder
+pip install date-tree

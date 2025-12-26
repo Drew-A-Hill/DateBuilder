@@ -3,7 +3,7 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "date-builder"
+name = "date-tree"
 version = "1.0.2"
 description = "Tree-based date filtering utilities"
 readme = "README.md"

@@ -1,11 +1,11 @@
 """
-    date_builder.py
+    date_tree.py
 
-    This module provides the DateBuilder class, a high level interface for
+    This module provides the DateTree class, a high level interface for
     managing, filtering, and querying collections of dates stored in a
     Red-Black Tree (RBTree).
 
-    The DateBuilder encapsulates common date based operations such as:
+    The DateTree encapsulates common date based operations such as:
     - Adding single dates or ranges of dates
     - Deleting individual dates or ranges of dates
     - Filtering dates by day, month, year, or day of week
@@ -19,17 +19,17 @@
     Typical usage:
 
         from bintrees import RBTree
-        from date_tree_builder.date_builder import DateBuilder
+        from date_tree.date_builder import DateTree
 
         tree = RBTree()
-        builder = DateBuilder(tree, date_obj="example")
+        builder = DateTree(tree, date_obj="example")
 
         builder.include_days_of_week(monday=True, friday=True)
         builder.add_dates(date(2025, 1, 1), date(2025, 1, 31))
         filtered = builder.filter_dates(month=1, year=2025)
 
     Exceptions raised by helper classes (such as ValueError for invalid
-    operations) are propagated through the DateBuilder API and documented
+    operations) are propagated through the DateTree API and documented
     on individual methods.
     """
 from datetime import datetime
@@ -39,22 +39,22 @@ from bintrees import RBTree
 from ._filter_dates import FilteredDates
 from ._days_of_week import DaysOfWeek
 from ._delete_dates import DeleteDates
-from ._find_dates import FindDate
+from ._date_exists import DateExists
 from ._add_dates import AddDates
 from ._helper_methods import HelperMethods
 from ._show_dates import ShowDates
 
-class DateBuilder:
+class DateTree:
     """
         High-level interface for storing and manipulating dates in an RBTree.
 
-        DateBuilder uses a RBTree of dates and provides methods for
+        DateTree uses a RBTree of dates and provides methods for
         adding dates or date ranges, deleting dates, and filtering dates by
         day, month, year, and day of week.
         """
     def __init__(self, tree: RBTree, date_obj: object):
         """
-        Create a new DateBuilder.
+        Create a new DateTree.
 
         :param tree: RBTree instance used to store dates as keys.
         :param date_obj: Default value to associate with dates.
@@ -62,7 +62,7 @@ class DateBuilder:
         self._date_obj = date_obj
         self._tree = tree
         self._days_of_week: DaysOfWeek = DaysOfWeek()
-        self._find = FindDate()
+        self._exists = DateExists()
 
     @property
     def date_obj(self) -> object:
@@ -126,14 +126,14 @@ class DateBuilder:
         """
         return AddDates(self._date_obj, self._tree, self._days_of_week).add_date(first_date, last_date)
 
-    def find_date(self, tree: RBTree , date: datetime.date) -> bool:
+    def date_existance(self, tree: RBTree, date: datetime.date) -> bool:
         """
-        Finds if a date exists in the tree and returns True if the date exists and False if the date does not exist.
+        Checks if a date exists in the tree and returns True if the date exists and False if the date does not exist.
         :param tree: Tree where the dates are stored.
         :param date: The date being searched for.
         :return: Bool response if the date has been found.
         """
-        return self._find.find_date_exist(tree, date)
+        return self._exists.date_exist(tree, date)
 
     def delete_date(self, date: datetime.date) -> RBTree:
         """

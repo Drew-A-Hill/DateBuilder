@@ -6,8 +6,8 @@ from typing import Any, Dict
 import pytest
 from bintrees import RBTree
 
-import date_tree_builder.date_builder as datebuilder
-from date_tree_builder.date_builder import DateBuilder
+import date_tree.date_tree as datebuilder
+from date_tree.date_tree import DateTree
 
 # --------------- Creates a dummy date object for the test ------------------
 class DummyObject:
@@ -18,14 +18,14 @@ class DummyObject:
         self.date = None
 
 # ----------------- Creates a date builder for the test --------------------
-def builder() -> DateBuilder:
+def builder() -> DateTree:
     """
-    Creates the instance of the DateBuilder to be used for testing
-    :return: The DateBuilder instance
+    Creates the instance of the DateTree to be used for testing
+    :return: The DateTree instance
     """
     tree: RBTree = RBTree()
     date_obj: object = DummyObject()
-    return DateBuilder(tree, date_obj)
+    return DateTree(tree, date_obj)
 
 # --------------- Tests getting the count of elements added ----------------
 
@@ -53,12 +53,12 @@ def test_get_count_empty():
     Tests how getting the count of the number of dates when there are no elements added to the tree
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     assert db.count == 0
 
 def test_count_after_remove():
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Include all days of week
     db.include_days_of_week(include_all=True)
@@ -84,7 +84,7 @@ def test_add_date_range():
     Tests successful adding of date range
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
     tree: RBTree = db.tree
 
     # Include all days of week
@@ -112,7 +112,7 @@ def test_add_single_date():
         Tests successful adding of a single date
         """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
     tree: RBTree = db.tree
 
     # Include all days of week
@@ -139,7 +139,7 @@ def test_lower_bound_date_greater():
     Tests that a ValueError exception is correctly raised when the lower bound date is greater than upper bound date
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Include all days of week
     db.include_days_of_week(include_all=True)
@@ -152,7 +152,7 @@ def test_lower_bound_date_greater():
         db.add_dates(first, last)
 
 # ------------------------------ Tests deleting dates ------------------------------
-def add_date_helper(db: DateBuilder, first: int, last: int = None) -> RBTree:
+def add_date_helper(db: DateTree, first: int, last: int = None) -> RBTree:
     """
     Provides a tree of dates to delete from.
     """
@@ -179,7 +179,7 @@ def test_delete_single_date_element():
     Tests deleting a date from the tree
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     tree: RBTree = add_date_helper(db, 1, 30)
 
@@ -196,7 +196,7 @@ def test_delete_single_date_element_multi():
     Tests deleting a date from the tree multiple times
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Tree with added dates
     add_date_helper(db, 1, 30)
@@ -210,29 +210,29 @@ def test_delete_single_date_element_multi():
     date2: datetime = datetime.date(2025, 1, 2)
 
     # Checks for dates before deletion
-    assert db.find_date(db.tree, date1)
-    assert db.find_date(db.tree, date2)
+    assert db.date_existance(db.tree, date1)
+    assert db.date_existance(db.tree, date2)
 
     # Deletes Date
     db.delete_date(date1)
 
     assert len(db.tree) == 29
     # Checks for date after deletion
-    assert db.find_date(db.tree, date1) is False
+    assert db.date_existance(db.tree, date1) is False
 
     # Deletes Date
     db.delete_date(datetime.date(2025, 1, 2))
 
     assert len(db.tree) == 28
     # Checks for date after deletion
-    assert db.find_date(db.tree, date2) is False
+    assert db.date_existance(db.tree, date2) is False
 
 def test_delete_from_empty():
     """
     Tests deleting from empty tree correctly raises ValueError
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Checks that tree is empty
     assert db.is_empty
@@ -245,7 +245,7 @@ def test_delete_single_not_found():
     Tests deleting from tree that doesn't have the date correctly raises ValueError
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Adds Dates
     add_date_helper(db, 2, 10)
@@ -258,7 +258,7 @@ def test_delete_to_empty():
     Tests deleting from tree that doesn't have the date correctly raises ValueError
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Adds Dates
     add_date_helper(db, 1, 1)
@@ -274,7 +274,7 @@ def test_delete_date_between_range():
     Tests deleting a range of dates from the tree between the uber and lower bound inclusive
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Adds dates
     add_date_helper(db, 1, 10)
@@ -297,7 +297,7 @@ def test_delete_dates_from_lower():
     Tests deleting all dates from the lower bound date to the max date
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Adds dates
     add_date_helper(db, 1, 10)
@@ -315,17 +315,17 @@ def test_delete_dates_from_lower():
     assert len(db.tree) == 5
 
     # Checks for a date that should be in tree
-    assert db.find_date(db.tree, datetime.date(2025, 1, 5))
+    assert db.date_existance(db.tree, datetime.date(2025, 1, 5))
 
     # Checks for a date that should not be in the tree
-    assert db.find_date(db.tree, datetime.date(2025, 1, 6)) is False
+    assert db.date_existance(db.tree, datetime.date(2025, 1, 6)) is False
 
 def test_delete_dates_from_upper():
     """
     Tests deleting all dates from the upper bound date to the min date
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Adds dates
     add_date_helper(db, 1, 10)
@@ -343,17 +343,17 @@ def test_delete_dates_from_upper():
     assert len(db.tree) == 5
 
     # Checks for a date that should be in tree
-    assert db.find_date(db.tree, datetime.date(2025, 1, 6))
+    assert db.date_existance(db.tree, datetime.date(2025, 1, 6))
 
     # Checks for a date that should not be in the tree
-    assert db.find_date(db.tree, datetime.date(2025, 1, 5)) is False
+    assert db.date_existance(db.tree, datetime.date(2025, 1, 5)) is False
 
 def test_remove_from_range_date_doesnt_exist():
     """
     Tests deleting dates from a range when a date doesn't exist in the range
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Adds dates
     add_date_helper(db, 1, 10)
@@ -367,7 +367,7 @@ def test_remove_from_range_date_doesnt_exist():
     db.delete_date(date)
 
     # Checks dates been removed
-    assert db.find_date(db.tree, date) is False
+    assert db.date_existance(db.tree, date) is False
 
     # Date range
     lower_date: datetime.date = datetime.date(2025, 1, 1)
@@ -379,18 +379,18 @@ def test_remove_from_range_date_doesnt_exist():
     assert len(db.tree) == 5
 
     # Checks for a date that should be in tree
-    assert db.find_date(db.tree, datetime.date(2025, 1, 6))
+    assert db.date_existance(db.tree, datetime.date(2025, 1, 6))
 
     # Checks for a date that should not be in the tree
-    assert db.find_date(db.tree, datetime.date(2025, 1, 5)) is False
-    assert db.find_date(db.tree, datetime.date(2025, 1, 3)) is False
+    assert db.date_existance(db.tree, datetime.date(2025, 1, 5)) is False
+    assert db.date_existance(db.tree, datetime.date(2025, 1, 3)) is False
 
 def tests_delete_from_empty():
     """
     Tests that if there is an attempt to remove from an empty tree that a ValueError is raised
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Checks dates were added
     assert db.is_empty
@@ -427,8 +427,8 @@ def test_filter_by_year():
     filtered_2025 = db.filter_dates(year=2025)
 
     assert len(filtered_2025) == 1
-    assert db.find_date(filtered_2025, last)
-    assert db.find_date(filtered_2025, first) is False
+    assert db.date_existance(filtered_2025, last)
+    assert db.date_existance(filtered_2025, first) is False
 
     # Includes days of the week for 2024 filtering
     db.include_days_of_week(include_all=True)
@@ -437,8 +437,8 @@ def test_filter_by_year():
     filtered_2024 = db.filter_dates(year=2024)
 
     assert len(filtered_2024) == 31
-    assert db.find_date(filtered_2024, first)
-    assert db.find_date(filtered_2024, last) is False
+    assert db.date_existance(filtered_2024, first)
+    assert db.date_existance(filtered_2024, last) is False
 
 def test_filter_by_month():
     """
@@ -470,10 +470,10 @@ def test_filter_by_month():
     filter1_false2: datetime.date = datetime.date(2023, 11, 1)
 
     assert len(filtered_jan) == 62
-    assert db.find_date(filtered_jan, filter1_true1)
-    assert db.find_date(filtered_jan, filter1_true2)
-    assert db.find_date(filtered_jan, filter1_false1) is False
-    assert db.find_date(filtered_jan, filter1_false2) is False
+    assert db.date_existance(filtered_jan, filter1_true1)
+    assert db.date_existance(filtered_jan, filter1_true2)
+    assert db.date_existance(filtered_jan, filter1_false1) is False
+    assert db.date_existance(filtered_jan, filter1_false2) is False
 
     # Filters dates by month december
     db.include_days_of_week(include_all=True)
@@ -487,11 +487,11 @@ def test_filter_by_month():
     filter2_false3: datetime.date = datetime.date(2022, 4, 5)
 
     assert len(filtered_dec) == 63
-    assert db.find_date(filtered_dec, filter2_true1)
-    assert db.find_date(filtered_dec, filter2_true2)
-    assert db.find_date(filtered_dec, filter2_false1) is False
-    assert db.find_date(filtered_dec, filter2_false2) is False
-    assert db.find_date(filtered_dec, filter2_false3) is False
+    assert db.date_existance(filtered_dec, filter2_true1)
+    assert db.date_existance(filtered_dec, filter2_true2)
+    assert db.date_existance(filtered_dec, filter2_false1) is False
+    assert db.date_existance(filtered_dec, filter2_false2) is False
+    assert db.date_existance(filtered_dec, filter2_false3) is False
 
 def test_filter_by_year_month():
     """
@@ -525,11 +525,11 @@ def test_filter_by_year_month():
     filter1_false3: datetime.date = datetime.date(2025, 1, 1)
 
     assert len(filtered_jan) == 31
-    assert db.find_date(filtered_jan, filter1_true1)
-    assert db.find_date(filtered_jan, filter1_true2)
-    assert db.find_date(filtered_jan, filter1_false1) is False
-    assert db.find_date(filtered_jan, filter1_false2) is False
-    assert db.find_date(filtered_jan, filter1_false3) is False
+    assert db.date_existance(filtered_jan, filter1_true1)
+    assert db.date_existance(filtered_jan, filter1_true2)
+    assert db.date_existance(filtered_jan, filter1_false1) is False
+    assert db.date_existance(filtered_jan, filter1_false2) is False
+    assert db.date_existance(filtered_jan, filter1_false3) is False
 
     # Filters dates by month december
     db.include_days_of_week(include_all=True)
@@ -543,11 +543,11 @@ def test_filter_by_year_month():
     filter2_false3: datetime.date = datetime.date(2022, 11, 5)
 
     assert len(filtered_dec) == 30
-    assert db.find_date(filtered_dec, filter2_true1)
-    assert db.find_date(filtered_dec, filter2_true2)
-    assert db.find_date(filtered_dec, filter2_false1) is False
-    assert db.find_date(filtered_dec, filter2_false2) is False
-    assert db.find_date(filtered_dec, filter2_false3) is False
+    assert db.date_existance(filtered_dec, filter2_true1)
+    assert db.date_existance(filtered_dec, filter2_true2)
+    assert db.date_existance(filtered_dec, filter2_false1) is False
+    assert db.date_existance(filtered_dec, filter2_false2) is False
+    assert db.date_existance(filtered_dec, filter2_false3) is False
 
 def test_filter_by_year_day():
     """
@@ -580,11 +580,11 @@ def test_filter_by_year_day():
     filter1_false3: datetime.date = datetime.date(2024, 1, 5)
 
     assert len(filtered_first_2024) == 12
-    assert db.find_date(filtered_first_2024, filter1_true1)
-    assert db.find_date(filtered_first_2024, filter1_true2)
-    assert db.find_date(filtered_first_2024, filter1_false1) is False
-    assert db.find_date(filtered_first_2024, filter1_false2) is False
-    assert db.find_date(filtered_first_2024, filter1_false3) is False
+    assert db.date_existance(filtered_first_2024, filter1_true1)
+    assert db.date_existance(filtered_first_2024, filter1_true2)
+    assert db.date_existance(filtered_first_2024, filter1_false1) is False
+    assert db.date_existance(filtered_first_2024, filter1_false2) is False
+    assert db.date_existance(filtered_first_2024, filter1_false3) is False
 
     # Filters dates by 31st 2025
     db.include_days_of_week(include_all=True)
@@ -598,11 +598,11 @@ def test_filter_by_year_day():
     filter2_false3: datetime.date = datetime.date(2025, 11, 5)
 
     assert len(filtered_31st_2025) == 7
-    assert db.find_date(filtered_31st_2025, filter2_true1)
-    assert db.find_date(filtered_31st_2025, filter2_true2)
-    assert db.find_date(filtered_31st_2025, filter2_false1) is False
-    assert db.find_date(filtered_31st_2025, filter2_false2) is False
-    assert db.find_date(filtered_31st_2025, filter2_false3) is False
+    assert db.date_existance(filtered_31st_2025, filter2_true1)
+    assert db.date_existance(filtered_31st_2025, filter2_true2)
+    assert db.date_existance(filtered_31st_2025, filter2_false1) is False
+    assert db.date_existance(filtered_31st_2025, filter2_false2) is False
+    assert db.date_existance(filtered_31st_2025, filter2_false3) is False
 
 def test_filter_by_month_day():
     """
@@ -635,11 +635,11 @@ def test_filter_by_month_day():
     filter1_false3: datetime.date = datetime.date(2024, 1, 5)
 
     assert len(filtered_dec_1st) == 4
-    assert db.find_date(filtered_dec_1st, filter1_true1)
-    assert db.find_date(filtered_dec_1st, filter1_true2)
-    assert db.find_date(filtered_dec_1st, filter1_false1) is False
-    assert db.find_date(filtered_dec_1st, filter1_false2) is False
-    assert db.find_date(filtered_dec_1st, filter1_false3) is False
+    assert db.date_existance(filtered_dec_1st, filter1_true1)
+    assert db.date_existance(filtered_dec_1st, filter1_true2)
+    assert db.date_existance(filtered_dec_1st, filter1_false1) is False
+    assert db.date_existance(filtered_dec_1st, filter1_false2) is False
+    assert db.date_existance(filtered_dec_1st, filter1_false3) is False
 
 def test_filter_by_year_month_day():
     """
@@ -671,10 +671,10 @@ def test_filter_by_year_month_day():
     filter1_false3: datetime.date = datetime.date(2025, 1, 1)
 
     assert len(filtered_dec_1st_2025) == 1
-    assert db.find_date(filtered_dec_1st_2025, filter1_true1)
-    assert db.find_date(filtered_dec_1st_2025, filter1_false1) is False
-    assert db.find_date(filtered_dec_1st_2025, filter1_false2) is False
-    assert db.find_date(filtered_dec_1st_2025, filter1_false3) is False
+    assert db.date_existance(filtered_dec_1st_2025, filter1_true1)
+    assert db.date_existance(filtered_dec_1st_2025, filter1_false1) is False
+    assert db.date_existance(filtered_dec_1st_2025, filter1_false2) is False
+    assert db.date_existance(filtered_dec_1st_2025, filter1_false3) is False
 
 # ------------------------------ Tests finding dates -------------------------------
 def test_find_true():
@@ -682,50 +682,50 @@ def test_find_true():
     Tests that find_date correctly returns True
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Adds dates
     add_date_helper(db, 1)
 
-    assert db.find_date(db.tree, datetime.date(2025, 1, 1))
+    assert db.date_existance(db.tree, datetime.date(2025, 1, 1))
 
 def test_find_false():
     """
     Tests that find_date correctly returns False
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Adds dates
     add_date_helper(db, 1)
 
-    assert db.find_date(db.tree, datetime.date(2025, 1, 2)) is False
+    assert db.date_existance(db.tree, datetime.date(2025, 1, 2)) is False
 
 def test_invalid_date_type():
     """
     Tests that find_date correctly raises ValueError when passed an invalid date type
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Adds dates
     add_date_helper(db, 1)
 
     with pytest.raises(ValueError):
-        db.find_date(db.tree, 12/12/2025)
+        db.date_existance(db.tree, 12 / 12 / 2025)
 
 def test_invalid_date_type_str():
     """
     Tests that find_date correctly raises ValueError when passed an invalid date type of str
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Adds dates
     add_date_helper(db, 1)
 
     with pytest.raises(ValueError):
-        db.find_date(db.tree, "12/12/2025")
+        db.date_existance(db.tree, "12/12/2025")
 
 # ------------------ Tests the include_days_of_week functionality ------------------
 
@@ -734,7 +734,7 @@ def test_include_all_days_of_week():
     Tests to see if all the days of week have been added successfully
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Includes all dates
     db.include_days_of_week(include_all=True)
@@ -754,7 +754,7 @@ def test_exclude_all_days_of_week():
     Tests to see if all the days of week have been added excluded
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Includes all dates
     db.include_days_of_week(exclude_all=True)
@@ -770,7 +770,7 @@ def test_days_of_week_both_include_exclude_true():
     Tests to see if a ValueError exception is correctly raised when both include_all and exclude_all are marked True
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Includes all dates
     with pytest.raises(ValueError):
@@ -781,7 +781,7 @@ def test_days_of_week_both_include_all_and_day_true():
     Tests to see if a ValueError exception is correctly raised when both include_all and a day of week are marked True
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Includes all dates
     with pytest.raises(ValueError):
@@ -792,7 +792,7 @@ def test_days_of_week_both_exclude_all_and_day_true():
     Tests to see if a ValueError exception is correctly raised when both exclude_all and a day of week are marked True
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Includes all dates
     with pytest.raises(ValueError):
@@ -803,7 +803,7 @@ def test_add_remove_dow():
     Tests including single days of the week
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     def remove_and_test():
         """
@@ -884,7 +884,7 @@ def test_add_remove_multi_dow():
     Tests including multiple days of the week and excluding them
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     def remove_and_test():
         """
@@ -916,7 +916,7 @@ def test_reset_after_add():
     Tests that day of week tracker is reset after each add instance
     """
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Includes 3 days
     db.include_days_of_week(monday=True, wednesday=True, friday=True)
@@ -945,7 +945,7 @@ def test_display_dates_non_empty_tree():
     """
     # Sets up tree with added dates so display dates can be tested
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
     tree: RBTree = db.tree
 
     # Sets first and last date in datetime
@@ -967,7 +967,7 @@ def test_display_dates_empty_tree():
     """
     # Sets up tree with added dates so display dates can be tested
     # Sets up the date builder with a tree and date object
-    db: DateBuilder = builder()
+    db: DateTree = builder()
 
     # Tries to display dates of an empty tree
     with pytest.raises(ValueError):
@@ -989,7 +989,7 @@ def test_str_to_date_pass(monkeypatch: pytest.MonkeyPatch):
 
     monkeypatch.setattr(datebuilder, "HelperMethods", FakeHelperMethods)
 
-    result = DateBuilder.str_to_date("01/01/2025")
+    result = DateTree.str_to_date("01/01/2025")
 
     assert result == dt.date(2025, 12, 31)
     assert called["arg"] == "01/01/2025"
@@ -998,7 +998,7 @@ def test_str_to_date_failed_match():
     """
     Tests for that dates don't match when providing differing dates
     """
-    result = DateBuilder.str_to_date("01/01/2025")
+    result = DateTree.str_to_date("01/01/2025")
 
     assert not result == dt.date(2021, 12, 31)
 
@@ -1008,7 +1008,7 @@ def test_str_to_date_correct_raise_invalid_y_m_d():
     than dd/mm/yyyy
     """
     with pytest.raises(ValueError):
-        DateBuilder.str_to_date("2025/01/01")
+        DateTree.str_to_date("2025/01/01")
 
 def test_str_to_date_correct_raise_invalid_year_len():
     """
@@ -1016,7 +1016,7 @@ def test_str_to_date_correct_raise_invalid_year_len():
     than dd/mm/yyyy
     """
     with pytest.raises(ValueError):
-        DateBuilder.str_to_date("01/01/20205")
+        DateTree.str_to_date("01/01/20205")
 
 def test_str_to_date_correct_raise_invalid_seperator():
     """
@@ -1024,7 +1024,7 @@ def test_str_to_date_correct_raise_invalid_seperator():
     than dd/mm/yyyy
     """
     with pytest.raises(ValueError):
-        DateBuilder.str_to_date("01-01-2025")
+        DateTree.str_to_date("01-01-2025")
 
 def test_str_to_date_correct_raise_invalid_type():
     """
@@ -1033,4 +1033,4 @@ def test_str_to_date_correct_raise_invalid_type():
     date: datetime.date = datetime.date(2025, 1, 1)
 
     with pytest.raises(TypeError):
-        DateBuilder.str_to_date(date)
+        DateTree.str_to_date(date)

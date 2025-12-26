@@ -1,7 +1,7 @@
 import datetime
 from bintrees import RBTree
 
-from ._find_dates import FindDate
+from ._date_exists import DateExists
 from ._days_of_week import DaysOfWeek
 
 
@@ -18,7 +18,7 @@ class DeleteDates:
         """
         self.tree = tree
         self.days_of_week: DaysOfWeek = days_of_week
-        self.find = FindDate()
+        self.find = DateExists()
 
     def delete_date(self, date: datetime.date) -> RBTree:
         """
@@ -27,7 +27,7 @@ class DeleteDates:
         :raises ValueError: If the date is not found in the tree.
         :return: The tree with the date removed.
         """
-        if not self.find.find_date_exist(self.tree, date):
+        if not self.find.date_exist(self.tree, date):
             raise ValueError("Date is not found in the tree")
 
         self.tree.remove(date)
